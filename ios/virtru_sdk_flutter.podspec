@@ -13,7 +13,7 @@ Flutter wrapper for virtru-tdf3-cpp
   s.license          = { :file => 'LICENSE' }
   s.author           = { 'Virtru' => 'support@virtru.com' }
   s.source           = { :path => '.' }
-  s.vendored_frameworks = "virtru_tdf3.framework"
+  s.vendored_frameworks = "virtru_tdf3.xcframework"
   s.dependency 'Flutter'
   s.platform = :ios, '12.0'
 

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart' as virtru;
 
@@ -16,12 +14,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late virtru.Client client;
+  final rcaLink =
+      "https://secure.virtru.com/start#v=4.0.0&pu=https%3A%2F%2Fapi.virtru.com%2Facm%2Fapi%2Fpolicies%2F139dee9b-4dcb-40e1-bf14-154e4155ff19%2Fcontract&wu=https%3A%2F%2Fapi.virtru.com%2Fencrypted-storage%2F0da80533-010a-4fa5-b8a4-97baa026798e.tdf&al=AES-256-GCM";
+  String? result;
 
   @override
   void initState() {
     super.initState();
     client = virtru.Client.withAppId(appId: "", userId: "");
-    client.enableConsoleLogging();
+    _encryptFuture();
   }
 
   @override
@@ -51,18 +52,10 @@ class _MyAppState extends State<MyApp> {
                   textAlign: TextAlign.center,
                 ),
                 spacerSmall,
-                FutureBuilder<String>(
-                  future: _encryptFuture(),
-                  initialData: "Loading...",
-                  builder: (BuildContext context, AsyncSnapshot<String> value) {
-                    final displayValue =
-                        (value.hasData) ? value.data : 'Nothing here';
-                    return Text(
-                      'await encryptResult = $displayValue',
-                      style: textStyle,
-                      textAlign: TextAlign.center,
-                    );
-                  },
+                Text(
+                  'decryptRcaToString = $result',
+                  style: textStyle,
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -72,12 +65,15 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Future<String> _encryptFuture() async {
+  void _encryptFuture() async {
     debugPrint("_encryptFuture() called!");
     final params = virtru.EncryptStringParams("Some secure text")
-        .setPolicy(virtru.Policy())
-        .shareWithUsers(["vhereliuk.ctr@virtru.com"]);
+      ..setPolicy(virtru.Policy())
+      ..shareWithUsers(["vhereliuk.ctr@virtru.com"]);
     debugPrint("Policy added!");
-    return client.encryptString(params);
+    String result = await client.decryptRcaToString(rcaLink);
+    setState(() {
+      this.result = result;
+    });
   }
 }
