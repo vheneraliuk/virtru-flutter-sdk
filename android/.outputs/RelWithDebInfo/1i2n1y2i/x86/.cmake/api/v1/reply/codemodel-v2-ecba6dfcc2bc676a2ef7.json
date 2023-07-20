@@ -1,0 +1,98 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-RelWithDebInfo-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "lib",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-lib-RelWithDebInfo-dd1a33ff4a1bec57bd35.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "lib",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "virtru-tdf3-cpp"
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "virtru_tdf3",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "virtru_tdf3shared::@306ed2d68c6501e8728f",
+					"jsonFile" : "target-virtru_tdf3shared-RelWithDebInfo-84dd84b43fceacc1c5e2.json",
+					"name" : "virtru_tdf3shared",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "virtru_tdf3static::@306ed2d68c6501e8728f",
+					"jsonFile" : "target-virtru_tdf3static-RelWithDebInfo-b51bedbffd7aadbb149d.json",
+					"name" : "virtru_tdf3static",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/vheneraliuk/workspace/virtru_sdk_flutter/android/.outputs/RelWithDebInfo/1i2n1y2i/x86",
+		"source" : "/Users/vheneraliuk/workspace/virtru_sdk_flutter/src/virtru-tdf3-src"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
