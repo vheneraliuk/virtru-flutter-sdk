@@ -22,7 +22,7 @@ class Policy {
       bindings.VRemoveExpiration(ptr);
       return;
     }
-    final dateString = dateTime.toIso8601String();
+    final dateString = dateTime.toUtc().toIso8601String();
     bindings.VAddExpiration(ptr, dateString.toNativeUtf8().cast());
   }
 
