@@ -91,15 +91,7 @@ ffigen:
   output: 'lib/virtru_sdk_bindings_generated.dart'
   headers:
     entry-points:
-      - 'src/virtru-tdf3-src/lib/**/*_c.h'
-#    include-directives:
-#      - 'src/virtru-tdf3-src/lib/**/*_c.h'
-
-  #    - 'src/lib/include/virtru_client_c.h'
-  #    - 'src/lib/include/virtru_config_service_c.h'
-  #    - 'src/lib/include/virtru_policy_c.h'
-  #    - 'src/lib/include/virtru_encrypt_file_params_c.h'
-  #    - 'src/lib/include/virtru_encrypt_string_params_c.h'
+      - 'src/**/*_c.h'
   preamble: |
     // ignore_for_file: always_specify_types
     // ignore_for_file: camel_case_types
