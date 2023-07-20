@@ -17,7 +17,11 @@ class Policy {
     bindings.VExpireInMins(ptr, minutes);
   }
 
-  void setExpirationDate(DateTime dateTime) {
+  void setExpirationDate(DateTime? dateTime) {
+    if (dateTime == null) {
+      bindings.VRemoveExpiration(ptr);
+      return;
+    }
     final dateString = dateTime.toIso8601String();
     bindings.VAddExpiration(ptr, dateString.toNativeUtf8().cast());
   }
