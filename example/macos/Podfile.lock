@@ -1,0 +1,22 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - virtru_sdk_flutter (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - virtru_sdk_flutter (from `Flutter/ephemeral/.symlinks/plugins/virtru_sdk_flutter/macos`)
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  virtru_sdk_flutter:
+    :path: Flutter/ephemeral/.symlinks/plugins/virtru_sdk_flutter/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  virtru_sdk_flutter: 09ea7a6714277adffa2419cf71b30260b0214c1c
+
+PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
+
+COCOAPODS: 1.12.1
