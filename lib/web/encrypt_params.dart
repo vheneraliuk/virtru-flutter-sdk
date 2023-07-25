@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 import 'package:virtru_sdk_flutter/policy.dart';
 
@@ -42,11 +41,11 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 }
 
 class EncryptFileParamsImpl implements EncryptFileParams {
-  factory EncryptFileParamsImpl.fromFiles(File inputFile, File outputFile) {
+  factory EncryptFileParamsImpl.fromFiles(XFile inputFile, XFile outputFile) {
     return EncryptFileParamsImpl._();
   }
 
-  factory EncryptFileParamsImpl.fromFile(File inputFile) {
+  factory EncryptFileParamsImpl.fromFile(XFile inputFile) {
     return EncryptFileParamsImpl._();
   }
 

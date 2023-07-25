@@ -1,6 +1,6 @@
 import 'dart:ffi';
-import 'dart:io';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk_flutter/common/policy.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
@@ -58,13 +58,13 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 class EncryptFileParamsImpl implements EncryptFileParams {
   final VEncryptFileParamsPtr ptr;
 
-  factory EncryptFileParamsImpl.fromFiles(File inputFile, File outputFile) {
+  factory EncryptFileParamsImpl.fromFiles(XFile inputFile, XFile outputFile) {
     return EncryptFileParamsImpl._(bindings.VEncryptFileParamsCreate2(
         inputFile.path.toNativeUtf8().cast(),
         outputFile.path.toNativeUtf8().cast()));
   }
 
-  factory EncryptFileParamsImpl.fromFile(File inputFile) {
+  factory EncryptFileParamsImpl.fromFile(XFile inputFile) {
     return EncryptFileParamsImpl._(bindings.VEncryptFileParamsCreate1(
         inputFile.path.toNativeUtf8().cast()));
   }

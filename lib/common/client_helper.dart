@@ -301,9 +301,6 @@ class _DecryptRcaToFileRequest extends _DecryptRcaRequest {
   ) : super._(vClientPtrAddress, rcaLink);
 }
 
-/// A response with the result of `decryptString`.
-///
-/// Typically sent from one isolate to another.
 class _AsyncResponse<Res> {
   final Res? result;
   final int status;
