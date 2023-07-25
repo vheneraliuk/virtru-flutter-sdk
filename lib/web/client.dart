@@ -4,7 +4,6 @@ import 'package:virtru_sdk_flutter/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 
 class ClientImpl implements Client {
-
   factory ClientImpl.withAppId({
     required String userId,
     required String appId,
