@@ -5,8 +5,10 @@ import 'dart:isolate';
 
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
+import 'package:virtru_sdk_flutter/encrypt_params.dart';
+import 'package:virtru_sdk_flutter/native_error.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
 
 part 'client_helper.dart';
 

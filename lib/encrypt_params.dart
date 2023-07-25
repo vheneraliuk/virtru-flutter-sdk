@@ -2,8 +2,9 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
+import 'package:virtru_sdk_flutter/policy.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
 
 class EncryptStringParams {
   final VEncryptStringParamsPtr ptr;
