@@ -1,80 +1,26 @@
-import 'package:ffi/ffi.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk_flutter/common/policy.dart'
+    if (dart.library.html) 'package:virtru_sdk_flutter/web/policy.dart';
 
-class Policy {
-  final VPolicyPtr ptr;
+abstract class Policy {
+  factory Policy() => PolicyImpl();
 
-  factory Policy() => Policy._(bindings.VPolicyCreate());
+  void setExpirationInDays(int days);
 
-  Policy._(this.ptr);
+  void setExpirationInMinutes(int minutes);
 
-  void setExpirationInDays(int days) {
-    bindings.VExpireInDays(ptr, days);
-  }
+  void setExpirationDate(DateTime? dateTime);
 
-  void setExpirationInMinutes(int minutes) {
-    bindings.VExpireInMins(ptr, minutes);
-  }
+  void removeExpiration();
 
-  void setExpirationDate(DateTime? dateTime) {
-    if (dateTime == null) {
-      bindings.VRemoveExpiration(ptr);
-      return;
-    }
-    final dateString = dateTime.toUtc().toIso8601String();
-    bindings.VAddExpiration(ptr, dateString.toNativeUtf8().cast());
-  }
+  void setWatermarkEnabled(bool watermarkEnabled);
 
-  void removeExpiration() {
-    bindings.VRemoveExpiration(ptr);
-  }
+  void setPersistentProtectionEnabled(bool ppEnabled);
 
-  void setWatermarkEnabled(bool watermarkEnabled) {
-    if (watermarkEnabled) {
-      bindings.VEnableWatermarking(ptr);
-    } else {
-      bindings.VDisableWatermarking(ptr);
-    }
-  }
+  void setPreventDownloadEnabled(bool pdEnabled);
 
-  void setPersistentProtectionEnabled(bool ppEnabled) {
-    if (ppEnabled) {
-      bindings.VEnablePersistentProtection(ptr);
-    } else {
-      bindings.VDisablePersistentProtection(ptr);
-    }
-  }
+  void setReshareEnable(bool reshareEnabled);
 
-  void setPreventDownloadEnabled(bool pdEnabled) {
-    if (pdEnabled) {
-      bindings.VEnablePreventDownload(ptr);
-    } else {
-      bindings.VDisablePreventDownload(ptr);
-    }
-  }
+  void setCopyEnabled(bool copyEnabled);
 
-  void setReshareEnable(bool reshareEnabled) {
-    if (reshareEnabled) {
-      bindings.VEnableReshare(ptr);
-    } else {
-      bindings.VDisableReshare(ptr);
-    }
-  }
-
-  void setCopyEnabled(bool copyEnabled) {
-    if (copyEnabled) {
-      bindings.VEnableCopy(ptr);
-    } else {
-      bindings.VDisableCopy(ptr);
-    }
-  }
-
-  void setPrintEnabled(bool printEnabled) {
-    if (printEnabled) {
-      bindings.VEnablePrint(ptr);
-    } else {
-      bindings.VDisablePrint(ptr);
-    }
-  }
+  void setPrintEnabled(bool printEnabled);
 }
