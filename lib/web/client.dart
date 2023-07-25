@@ -3,7 +3,24 @@ import 'dart:io';
 import 'package:virtru_sdk_flutter/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 
-class ClientImpl implements Client{
+class ClientImpl implements Client {
+
+  factory ClientImpl.withAppId({
+    required String userId,
+    required String appId,
+  }) =>
+      ClientImpl._();
+
+  factory ClientImpl.withOIDC({
+    required String owner,
+    required String organizationName,
+    required String clientId,
+    required String clientSecret,
+  }) =>
+      ClientImpl._();
+
+  ClientImpl._();
+
   @override
   Future<int> decryptFile(File inputFile, File outputFile) {
     // TODO: implement decryptFile
@@ -58,10 +75,8 @@ class ClientImpl implements Client{
   }
 
   @override
-  int setZipProtocol(bool enableZip
-      ) {
+  int setZipProtocol(bool enableZip) {
     // TODO: implement setZipProtocol
     throw UnimplementedError();
   }
-
 }
