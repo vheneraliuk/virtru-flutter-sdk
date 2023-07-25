@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
 Flutter wrapper for virtru-tdf3-cpp
                        DESC
   s.homepage         = 'http://virtru.com'
-  s.license          = { :file => 'LICENSE' }
+  s.license          = { :file => '../LICENSE' }
   s.author           = { 'Virtru' => 'support@virtru.com' }
   s.source           = { :path => '.' }
   s.vendored_frameworks = "virtru_tdf3.xcframework"

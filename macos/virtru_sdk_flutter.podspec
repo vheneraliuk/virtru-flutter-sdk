@@ -5,23 +5,18 @@
 Pod::Spec.new do |s|
   s.name             = 'virtru_sdk_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter FFI plugin project.'
+  s.summary          = 'Flutter wrapper for virtru-tdf3-cpp'
   s.description      = <<-DESC
-A new Flutter FFI plugin project.
+Flutter wrapper for virtru-tdf3-cpp
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'http://virtru.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
-
-  # This will ensure the source files in Classes/ are included in the native
-  # builds of apps using this FFI plugin. Podspec does not support relative
-  # paths, so Classes contains a forwarder C file that relatively imports
-  # `../src/*` so that the C sources can be shared among all target platforms.
+  s.author           = { 'Virtru' => 'support@virtru.com' }
   s.source           = { :path => '.' }
   s.vendored_libraries = "libvirtru_tdf3.dylib"
   s.dependency 'FlutterMacOS'
+  s.platform = :osx, '10.14'
 
-  s.platform = :osx, '10.11'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
 end

@@ -99,10 +99,3 @@ ffigen:
   comments:
     style: any
     length: full
-
-  type-map:
-    'native-types': # Targets native types.
-      'bool':
-        'lib': 'ffi' # predefined import.
-        'c-type': 'Bool'
-        'dart-type': 'int'
