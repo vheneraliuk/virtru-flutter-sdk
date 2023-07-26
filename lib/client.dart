@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk_flutter/common/client.dart'
     if (dart.library.html) 'package:virtru_sdk_flutter/web/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
-
-// import 'common/client.dart' if (dart.library.html) 'web/client.dart';
 
 abstract class Client {
   factory Client.withAppId({
@@ -38,15 +36,15 @@ abstract class Client {
 
   Future<String> encryptStringToRCA(EncryptStringParams params);
 
-  Future<String> encryptFile(EncryptFileParams params);
+  Future<XFile> encryptFile(EncryptFileToFileParams params);
 
-  Future<String> encryptFileToRCA(EncryptFileParams params);
+  Future<String> encryptFileToRCA(EncryptFileToRcaParams params);
 
-  Future<int> decryptFile(File inputFile, File outputFile);
+  Future<XFile> decryptFile(XFile inputFile, XFile outputFile);
 
   Future<String> decryptRcaToString(String rcaLink);
 
-  Future<int> decryptRcaToFile(String rcaLink, String outputFile);
+  Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile);
 
   void dispose();
 }

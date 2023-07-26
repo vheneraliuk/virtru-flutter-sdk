@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk_flutter/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 
@@ -21,13 +20,13 @@ class ClientImpl implements Client {
   ClientImpl._();
 
   @override
-  Future<int> decryptFile(File inputFile, File outputFile) {
+  Future<XFile> decryptFile(XFile inputFile, XFile outputFile) {
     // TODO: implement decryptFile
     throw UnimplementedError();
   }
 
   @override
-  Future<int> decryptRcaToFile(String rcaLink, String outputFile) {
+  Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile) {
     // TODO: implement decryptRcaToFile
     throw UnimplementedError();
   }
@@ -50,13 +49,13 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<String> encryptFile(EncryptFileParams params) {
+  Future<XFile> encryptFile(EncryptFileToFileParams params) {
     // TODO: implement encryptFile
     throw UnimplementedError();
   }
 
   @override
-  Future<String> encryptFileToRCA(EncryptFileParams params) {
+  Future<String> encryptFileToRCA(EncryptFileToRcaParams params) {
     // TODO: implement encryptFileToRCA
     throw UnimplementedError();
   }

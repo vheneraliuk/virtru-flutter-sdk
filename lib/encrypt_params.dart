@@ -20,14 +20,6 @@ abstract class EncryptStringParams {
 }
 
 abstract class EncryptFileParams {
-  factory EncryptFileParams.fromFiles(XFile inputFile, XFile outputFile) {
-    return EncryptFileParamsImpl.fromFiles(inputFile, outputFile);
-  }
-
-  factory EncryptFileParams.fromFile(XFile inputFile) {
-    return EncryptFileParamsImpl.fromFile(inputFile);
-  }
-
   setPolicy(Policy policy);
 
   setDisplayName(String name);
@@ -37,4 +29,18 @@ abstract class EncryptFileParams {
   setMimeType(String mimeType);
 
   shareWithUsers(List<String> usersEmail);
+}
+
+abstract class EncryptFileToRcaParams implements EncryptFileParams {
+  factory EncryptFileToRcaParams(XFile inputFile) {
+    return EncryptFileParamsImpl.fileToRca(inputFile);
+  }
+}
+
+abstract class EncryptFileToFileParams implements EncryptFileParams {
+  String get outputFilePath;
+
+  factory EncryptFileToFileParams(XFile inputFile, XFile outputFile) {
+    return EncryptFileParamsImpl.fileToFile(inputFile, outputFile);
+  }
 }

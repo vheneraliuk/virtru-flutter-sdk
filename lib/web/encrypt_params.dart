@@ -40,12 +40,13 @@ class EncryptStringParamsImpl implements EncryptStringParams {
   }
 }
 
-class EncryptFileParamsImpl implements EncryptFileParams {
-  factory EncryptFileParamsImpl.fromFiles(XFile inputFile, XFile outputFile) {
+class EncryptFileParamsImpl
+    implements EncryptFileToFileParams, EncryptFileToRcaParams {
+  factory EncryptFileParamsImpl.fileToFile(XFile inputFile, XFile outputFile) {
     return EncryptFileParamsImpl._();
   }
 
-  factory EncryptFileParamsImpl.fromFile(XFile inputFile) {
+  factory EncryptFileParamsImpl.fileToRca(XFile inputFile) {
     return EncryptFileParamsImpl._();
   }
 
@@ -80,4 +81,8 @@ class EncryptFileParamsImpl implements EncryptFileParams {
     // TODO: implement shareWithUsers
     throw UnimplementedError();
   }
+
+  @override
+  // TODO: implement outputFilePath
+  String get outputFilePath => throw UnimplementedError();
 }

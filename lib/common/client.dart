@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk_flutter/client.dart';
@@ -67,8 +67,9 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<String> encryptFile(EncryptFileParams params) async {
-    return _encryptFile(_EncryptFileRequest(_clientPtr, params.ptr));
+  Future<XFile> encryptFile(EncryptFileToFileParams params) async {
+    await _encryptFile(_EncryptFileRequest(_clientPtr, params.ptr));
+    return XFile(params.outputFilePath);
   }
 
   @override
@@ -77,12 +78,13 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<int> decryptFile(File inputFile, File outputFile) async {
-    return _decryptFile(_DecryptFileRequest(
+  Future<XFile> decryptFile(XFile inputFile, XFile outputFile) async {
+    await _decryptFile(_DecryptFileRequest(
       _clientPtr,
       inputFile.path,
       outputFile.path,
     ));
+    return XFile(outputFile.path);
   }
 
   @override
@@ -94,12 +96,13 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<int> decryptRcaToFile(String rcaLink, String outputFile) async {
-    return _decryptRcaToFile(_DecryptRcaToFileRequest(
+  Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile) async {
+    await _decryptRcaToFile(_DecryptRcaToFileRequest(
       _clientPtr,
       rcaLink,
-      outputFile,
+      outputFile.path,
     ));
+    return XFile(outputFile.path);
   }
 
   @override

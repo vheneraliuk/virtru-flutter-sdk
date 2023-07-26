@@ -55,21 +55,27 @@ class EncryptStringParamsImpl implements EncryptStringParams {
   }
 }
 
-class EncryptFileParamsImpl implements EncryptFileParams {
+class EncryptFileParamsImpl
+    implements EncryptFileToRcaParams, EncryptFileToFileParams {
   final VEncryptFileParamsPtr ptr;
+  final String _outputFilePath;
 
-  factory EncryptFileParamsImpl.fromFiles(XFile inputFile, XFile outputFile) {
-    return EncryptFileParamsImpl._(bindings.VEncryptFileParamsCreate2(
-        inputFile.path.toNativeUtf8().cast(),
-        outputFile.path.toNativeUtf8().cast()));
+  factory EncryptFileParamsImpl.fileToFile(XFile inputFile, XFile outputFile) {
+    return EncryptFileParamsImpl._(
+      bindings.VEncryptFileParamsCreate2(inputFile.path.toNativeUtf8().cast(),
+          outputFile.path.toNativeUtf8().cast()),
+      outputFile.path,
+    );
   }
 
-  factory EncryptFileParamsImpl.fromFile(XFile inputFile) {
-    return EncryptFileParamsImpl._(bindings.VEncryptFileParamsCreate1(
-        inputFile.path.toNativeUtf8().cast()));
+  factory EncryptFileParamsImpl.fileToRca(XFile inputFile) {
+    return EncryptFileParamsImpl._(
+      bindings.VEncryptFileParamsCreate1(inputFile.path.toNativeUtf8().cast()),
+      "",
+    );
   }
 
-  EncryptFileParamsImpl._(this.ptr);
+  EncryptFileParamsImpl._(this.ptr, this._outputFilePath);
 
   @override
   setPolicy(Policy policy) {
@@ -104,6 +110,9 @@ class EncryptFileParamsImpl implements EncryptFileParams {
     bindings.VEncryptFileParamsShareWithUsers(
         ptr, usersPtr, usersPtrList.length);
   }
+
+  @override
+  String get outputFilePath => _outputFilePath;
 }
 
 extension on Policy {
