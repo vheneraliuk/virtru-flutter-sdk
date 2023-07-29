@@ -25,7 +25,7 @@ void main() {
   });
 
   test("Wrong AppID and UserId", () async {
-    const testData = "Wrong AppID and UserId";
+    final testData = "Wrong AppID and UserId";
     final client =
         Client.withAppId(userId: "fake@user.id", appId: "fake_app_id");
     final shouldThrowError =
@@ -36,7 +36,7 @@ void main() {
 
   group("Encrypt/Decrypt Strings:", () {
     test("String -> RCA -> String", () async {
-      const testData = "String -> RCA -> String";
+      final testData = "String -> RCA -> String";
       final rcaLink = await client1.encryptStringToRCA(
         EncryptStringParams(testData)..shareWithUsers([userId2]),
       );
@@ -45,7 +45,7 @@ void main() {
     });
 
     test("String -> TDF3 -> String", () async {
-      const testData = "String -> TDF3 -> String";
+      final testData = "String -> TDF3 -> String";
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)..shareWithUsers([userId1]),
       );
