@@ -7,6 +7,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
 
@@ -25,7 +26,7 @@ void main() {
   });
 
   test("Wrong AppID and UserId", () async {
-    final testData = "Wrong AppID and UserId";
+    const testData = "Wrong AppID and UserId";
     final client =
         Client.withAppId(userId: "fake@user.id", appId: "fake_app_id");
     final shouldThrowError =
@@ -36,7 +37,7 @@ void main() {
 
   group("Encrypt/Decrypt Strings:", () {
     test("String -> RCA -> String", () async {
-      final testData = "String -> RCA -> String";
+      const testData = "String -> RCA -> String";
       final rcaLink = await client1.encryptStringToRCA(
         EncryptStringParams(testData)..shareWithUsers([userId2]),
       );
@@ -46,12 +47,16 @@ void main() {
 
     test("String -> TDF3 -> String", () async {
       const testData = "String -> TDF3 -> String";
-      final expected = String.fromCharCodes(testData.codeUnits);
+      debugPrint(testData);
+      // final expected = String.fromCharCodes(testData.codeUnits);
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)..shareWithUsers([userId1]),
       );
+      debugPrint(testData);
       final decryptedText = await client1.decryptString(tdf3String);
-      expect(expected, equals(decryptedText));
+      debugPrint(testData);
+      expect(testData, equals(decryptedText));
+      debugPrint(testData);
     });
   });
 
