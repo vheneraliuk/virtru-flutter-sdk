@@ -1,13 +1,8 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'dart:io';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
 
@@ -17,6 +12,8 @@ final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late Client client1;
   late Client client2;
 
@@ -60,8 +57,63 @@ void main() {
     });
   });
 
+  group("Encrypt/Decrypt Files:", () {
+    test("File -> RCA -> File", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final rcaLink = await client1.encryptFileToRCA(
+        EncryptFileToRcaParams(inputFile)..shareWithUsers([userId2]),
+      );
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+          await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+      final actualBytes = await inputFile.readAsBytes();
+      final expectedBytes = await decryptedFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+      await inputFile.delete();
+      await decryptedFile.delete();
+    });
+
+    test("File -> File -> File", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      const outputFilePath = "flutter.png.tdf.html";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptedFile = await client1.encryptFile(
+        EncryptFileToFileParams(inputFile, XFile(outputFilePath))
+          ..shareWithUsers([userId2]),
+      );
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+          await client2.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      final actualBytes = await inputFile.readAsBytes();
+      final expectedBytes = await decryptedFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+      await inputFile.delete();
+      await encryptedFile.delete();
+      await decryptedFile.delete();
+    });
+  });
+
   tearDownAll(() {
     client1.dispose();
     client2.dispose();
   });
+}
+
+extension Delete on XFile {
+  delete() async {
+    if (!kIsWeb) {
+      await File(path).delete();
+    }
+  }
 }
