@@ -1,4 +1,4 @@
-name: Flutter Test
+name: Unit Tests
 
 on:
   pull_request:
@@ -21,16 +21,13 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Get dependencies
-        run: flutter pub get
-
       - name: Run unit tests
         env:
           TEST_USER_ID_1: ${{ secrets.TEST_USER_ID_1 }}
           TEST_APP_ID_1: ${{ secrets.TEST_APP_ID_1 }}
           TEST_USER_ID_2: ${{ secrets.TEST_USER_ID_2 }}
           TEST_APP_ID_2: ${{ secrets.TEST_APP_ID_2 }}
-        run: flutter test test/test.dart --coverage
+        run: flutter test --pub test/test.dart --coverage
 
       - name: Setup LCOV
         uses: hrishikesh-kadam/setup-lcov@v1
