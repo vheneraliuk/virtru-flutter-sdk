@@ -14,10 +14,18 @@ final userId1 = Platform.environment["TEST_USER_ID_1"]!;
 final appId1 = Platform.environment["TEST_APP_ID_1"]!;
 final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
-const testData = "Flutter SDK unit tests secure message!";
 
 void main() {
+  late Client client1;
+  late Client client2;
+
+  setUpAll(() {
+    client1 = Client.withAppId(userId: userId1, appId: appId1);
+    client2 = Client.withAppId(userId: userId2, appId: appId2);
+  });
+
   test("Wrong AppID and UserId", () async {
+    const testData = "Wrong AppID and UserId";
     final client =
         Client.withAppId(userId: "fake@user.id", appId: "fake_app_id");
     final shouldThrowError =
@@ -26,29 +34,28 @@ void main() {
     client.dispose();
   });
 
-  group("Encrypt/Decrypt Strings", () {
+  group("Encrypt/Decrypt Strings:", () {
     test("String -> RCA -> String", () async {
-      final client1 = Client.withAppId(userId: userId1, appId: appId1);
-      final client2 = Client.withAppId(userId: userId2, appId: appId2);
+      const testData = "String -> RCA -> String";
       final rcaLink = await client1.encryptStringToRCA(
         EncryptStringParams(testData)..shareWithUsers([userId2]),
       );
       final decryptedText = await client2.decryptRcaToString(rcaLink);
       expect(testData, decryptedText);
-      client1.dispose();
-      client2.dispose();
     });
 
     test("String -> TDF3 -> String", () async {
-      final client1 = Client.withAppId(userId: userId1, appId: appId1);
-      final client2 = Client.withAppId(userId: userId2, appId: appId2);
+      const testData = "String -> TDF3 -> String";
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)..shareWithUsers([userId1]),
       );
       final decryptedText = await client1.decryptString(tdf3String);
       expect(testData, decryptedText);
-      client1.dispose();
-      client2.dispose();
     });
+  });
+
+  tearDownAll(() {
+    client1.dispose();
+    client2.dispose();
   });
 }
