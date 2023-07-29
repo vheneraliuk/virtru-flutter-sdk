@@ -26,27 +26,29 @@ void main() {
     client.dispose();
   });
 
-  test("String -> RCA -> String", () async {
-    final client1 = Client.withAppId(userId: userId1, appId: appId1);
-    final client2 = Client.withAppId(userId: userId2, appId: appId2);
-    final rcaLink = await client1.encryptStringToRCA(
-      EncryptStringParams(testData)..shareWithUsers([userId2]),
-    );
-    final decryptedText = await client2.decryptRcaToString(rcaLink);
-    expect(testData, decryptedText);
-    client1.dispose();
-    client2.dispose();
-  });
+  group("Encrypt/Decrypt Strings", () {
+    test("String -> RCA -> String", () async {
+      final client1 = Client.withAppId(userId: userId1, appId: appId1);
+      final client2 = Client.withAppId(userId: userId2, appId: appId2);
+      final rcaLink = await client1.encryptStringToRCA(
+        EncryptStringParams(testData)..shareWithUsers([userId2]),
+      );
+      final decryptedText = await client2.decryptRcaToString(rcaLink);
+      expect(testData, decryptedText);
+      client1.dispose();
+      client2.dispose();
+    });
 
-  test("String -> TDF3 -> String", () async {
-    final client1 = Client.withAppId(userId: userId1, appId: appId1);
-    final client2 = Client.withAppId(userId: userId2, appId: appId2);
-    final tdf3String = await client2.encryptString(
-      EncryptStringParams(testData)..shareWithUsers([userId1]),
-    );
-    final decryptedText = await client1.decryptString(tdf3String);
-    expect(testData, decryptedText);
-    client1.dispose();
-    client2.dispose();
+    test("String -> TDF3 -> String", () async {
+      final client1 = Client.withAppId(userId: userId1, appId: appId1);
+      final client2 = Client.withAppId(userId: userId2, appId: appId2);
+      final tdf3String = await client2.encryptString(
+        EncryptStringParams(testData)..shareWithUsers([userId1]),
+      );
+      final decryptedText = await client1.decryptString(tdf3String);
+      expect(testData, decryptedText);
+      client1.dispose();
+      client2.dispose();
+    });
   });
 }
