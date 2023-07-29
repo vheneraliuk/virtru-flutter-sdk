@@ -88,6 +88,11 @@ class ClientImpl implements Client {
   }
 
   @override
+  Future<String> decryptString(String tdf3) {
+    return _decryptString(_DecryptStringRequest(_clientPtr, tdf3));
+  }
+
+  @override
   Future<String> decryptRcaToString(String rcaLink) async {
     return _decryptRcaToString(_DecryptRcaRequest(
       _clientPtr,

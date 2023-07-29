@@ -26,6 +26,12 @@ class ClientImpl implements Client {
   }
 
   @override
+  Future<String> decryptString(String tdf3) {
+    // TODO: implement decryptString
+    throw UnimplementedError();
+  }
+
+  @override
   Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile) {
     // TODO: implement decryptRcaToFile
     throw UnimplementedError();

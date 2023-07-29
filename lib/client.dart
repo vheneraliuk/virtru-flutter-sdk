@@ -42,6 +42,8 @@ abstract class Client {
 
   Future<XFile> decryptFile(XFile inputFile, XFile outputFile);
 
+  Future<String> decryptString(String tdf3);
+
   Future<String> decryptRcaToString(String rcaLink);
 
   Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile);

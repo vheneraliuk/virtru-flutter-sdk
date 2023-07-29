@@ -7,6 +7,10 @@ const String _libName = 'virtru_tdf3';
 
 /// The dynamic library in which the symbols for [VirtruSdkFlutterBindings] can be found.
 final DynamicLibrary _dylib = () {
+  // for tests purposes
+  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    return DynamicLibrary.open('macos/lib$_libName.dylib');
+  }
   if (Platform.isIOS) {
     return DynamicLibrary.open('$_libName.framework/$_libName');
   }

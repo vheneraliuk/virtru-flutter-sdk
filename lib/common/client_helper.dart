@@ -44,6 +44,10 @@ Future<String> _encryptFileToRCA(_EncryptFileRequest request) async {
 }
 
 Future<int> _decryptFile(_DecryptFileRequest request) async {
+  return _callNative(request, _decryptFileMessageHandler);
+}
+
+Future<String> _decryptString(_DecryptStringRequest request) async {
   return _callNative(request, _decryptStringMessageHandler);
 }
 
@@ -164,7 +168,7 @@ _encryptStringMessageHandler(
   }
 }
 
-_decryptStringMessageHandler(
+_decryptFileMessageHandler(
   dynamic request,
   SendPort mainSendPort,
   SendErrorFunction onSendError,
@@ -178,6 +182,32 @@ _decryptStringMessageHandler(
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
       mainSendPort.send(_AsyncResponse(status: result, result: result));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
+_decryptStringMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _DecryptStringRequest) {
+    final outBytesPtr = malloc.allocate<VBytesPtr>(sizeOf<VBytesPtr>());
+    final outBytesLength =
+        malloc.allocate<VBytesLength>(sizeOf<VBytesLength>());
+    final result = bindings.VClientDecryptString(
+        request.vClientPtr,
+        request.tdf3.toNativeUtf8().cast(),
+        request.tdf3.length,
+        outBytesPtr,
+        outBytesLength);
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      final stringResult = outBytesPtr.value.cast<Utf8>().toDartString();
+      calloc.free(outBytesPtr);
+      mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
     } else {
       mainSendPort.send(_AsyncResponse(status: result));
     }
@@ -284,6 +314,16 @@ class _DecryptRcaRequest extends _Request {
       _DecryptRcaRequest._(vClientPtr.address, rcaLink);
 
   _DecryptRcaRequest._(vClientPtrAddress, this.rcaLink)
+      : super(vClientPtrAddress);
+}
+
+class _DecryptStringRequest extends _Request {
+  final String tdf3;
+
+  factory _DecryptStringRequest(VClientPtr vClientPtr, String tdf3) =>
+      _DecryptStringRequest._(vClientPtr.address, tdf3);
+
+  _DecryptStringRequest._(vClientPtrAddress, this.tdf3)
       : super(vClientPtrAddress);
 }
 
