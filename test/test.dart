@@ -41,7 +41,7 @@ void main() {
         EncryptStringParams(testData)..shareWithUsers([userId2]),
       );
       final decryptedText = await client2.decryptRcaToString(rcaLink);
-      expect(testData, decryptedText);
+      expect(testData, equals(decryptedText));
     });
 
     test("String -> TDF3 -> String", () async {
@@ -50,7 +50,7 @@ void main() {
         EncryptStringParams(testData)..shareWithUsers([userId1]),
       );
       final decryptedText = await client1.decryptString(tdf3String);
-      expect(testData, decryptedText);
+      expect(testData, equals(decryptedText));
     });
   });
 
