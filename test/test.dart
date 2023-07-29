@@ -36,24 +36,124 @@ void main() {
     test("String -> RCA -> String", () async {
       const testData = "String -> RCA -> String";
       final rcaLink = await client1.encryptStringToRCA(
-        EncryptStringParams(testData)..shareWithUsers([userId2]),
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayMessage(testData),
       );
       final decryptedText = await client2.decryptRcaToString(rcaLink);
       expect(testData, equals(decryptedText));
     });
 
+    test("RCA - Persistent Protection Enabled", () async {
+      const testData = "RCA - Persistent Protection Enabled";
+      final rcaLink = await client1.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()..setPersistentProtectionEnabled(true),
+          ),
+      );
+      final decryptRcaToString = client2.decryptRcaToString(rcaLink);
+      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
+    test("RCA - Watermark Enabled", () async {
+      const testData = "RCA - Watermark Enabled";
+      final rcaLink = await client2.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()..setWatermarkEnabled(true),
+          ),
+      );
+      final decryptRcaToString = client1.decryptRcaToString(rcaLink);
+      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
+    test("RCA - Set Expiration", () async {
+      const testData = "RCA - Set Expiration";
+      final rcaLink = await client2.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()
+              ..setExpirationDate(DateTime.now().add(
+                const Duration(seconds: 10),
+              )),
+          ),
+      );
+
+      final decryptedText = await client1.decryptRcaToString(rcaLink);
+      expect(testData, equals(decryptedText));
+
+      await Future.delayed(const Duration(seconds: 10));
+
+      final decryptRcaToString = client1.decryptRcaToString(rcaLink);
+      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
     test("String -> TDF3 -> String", () async {
       const testData = "String -> TDF3 -> String";
-      debugPrint(testData);
-      // final expected = String.fromCharCodes(testData.codeUnits);
       final tdf3String = await client2.encryptString(
-        EncryptStringParams(testData)..shareWithUsers([userId1]),
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayMessage(testData),
       );
-      debugPrint(testData);
       final decryptedText = await client1.decryptString(tdf3String);
-      debugPrint(testData);
       expect(testData, equals(decryptedText));
-      debugPrint(testData);
+    });
+
+    test("TDF3 - Persistent Protection Enabled", () async {
+      const testData = "TDF3 - Persistent Protection Enabled";
+      final tdf3String = await client2.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()..setPersistentProtectionEnabled(true),
+          ),
+      );
+      final decryptString = client1.decryptString(tdf3String);
+      expectLater(decryptString, throwsA(isA<NativeError>()));
+    });
+
+    test("TDF3 - Watermark Enabled", () async {
+      const testData = "TDF3 - Watermark Enabled";
+      final tdf3String = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()..setWatermarkEnabled(true),
+          ),
+      );
+      final decryptString = client2.decryptString(tdf3String);
+      expectLater(decryptString, throwsA(isA<NativeError>()));
+    });
+
+    test("TDF3 - Set Expiration", () async {
+      const testData = "TDF3 - Set Expiration";
+      final tdf3String = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayMessage(testData)
+          ..setPolicy(
+            Policy()
+              ..setExpirationDate(DateTime.now().add(
+                const Duration(seconds: 10),
+              )),
+          ),
+      );
+      final decryptedText = await client2.decryptString(tdf3String);
+      expect(testData, equals(decryptedText));
+
+      await Future.delayed(const Duration(seconds: 10));
+
+      final decryptString = client2.decryptString(tdf3String);
+      expectLater(decryptString, throwsA(isA<NativeError>()));
     });
   });
 
