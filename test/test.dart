@@ -45,13 +45,14 @@ void main() {
     });
 
     test("String -> TDF3 -> String", () async {
-      final testData = "String -> TDF3 -> String";
+      const testData = "String -> TDF3 -> String";
+      final expected = String.fromCharCodes(testData.codeUnits);
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)..shareWithUsers([userId1]),
       );
       final decryptedText = await client1.decryptString(tdf3String);
-      expect(testData, equals(decryptedText));
-    }, skip: "Weird fail");
+      expect(expected, equals(decryptedText));
+    });
   });
 
   tearDownAll(() {
