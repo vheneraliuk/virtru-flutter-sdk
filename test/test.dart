@@ -14,14 +14,14 @@ final userId1 = Platform.environment["TEST_USER_ID_1"]!;
 final appId1 = Platform.environment["TEST_APP_ID_1"]!;
 final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
-const testData = "Super secure text!";
+const testData = "Flutter SDK unit tests secure message!";
 
 void main() {
   test("Wrong AppID and UserId", () async {
     final client =
         Client.withAppId(userId: "fake@user.id", appId: "fake_app_id");
     final shouldThrowError =
-        client.encryptString(EncryptStringParams("test data"));
+        client.encryptString(EncryptStringParams(testData));
     await expectLater(shouldThrowError, throwsA(isA<NativeError>()));
     client.dispose();
   });
