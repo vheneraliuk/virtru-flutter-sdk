@@ -17,7 +17,7 @@ void main() {
   late Client client1;
   late Client client2;
 
-  setUpAll(() {
+  setUp(() {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
   });
@@ -88,13 +88,13 @@ void main() {
         path: inputFilePath,
       );
       await inputFile.saveTo(inputFilePath);
-      final encryptedFile = await client1.encryptFile(
+      final encryptedFile = await client2.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
-          ..shareWithUsers([userId2]),
+          ..shareWithUsers([userId1]),
       );
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
-          await client2.decryptFile(encryptedFile, XFile(decryptedFilePath));
+          await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       final actualBytes = await inputFile.readAsBytes();
       final expectedBytes = await decryptedFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
@@ -104,7 +104,7 @@ void main() {
     });
   });
 
-  tearDownAll(() {
+  tearDown(() {
     client1.dispose();
     client2.dispose();
   });
