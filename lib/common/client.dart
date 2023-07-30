@@ -111,7 +111,7 @@ class ClientImpl implements Client {
   }
 
   @override
-  void dispose() {
+  dispose() {
     bindings.VClientDestroy(_clientPtr);
   }
 }

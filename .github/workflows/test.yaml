@@ -11,6 +11,8 @@ jobs:
   run_tests:
 
     runs-on: macos-12
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -36,6 +38,7 @@ jobs:
         uses: zgosalvez/github-actions-report-lcov@v3
         with:
           coverage-files: coverage/lcov.info
+          minimum-coverage: 70
           artifact-name: code-coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true

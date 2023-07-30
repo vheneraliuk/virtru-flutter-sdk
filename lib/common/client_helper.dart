@@ -205,7 +205,7 @@ _decryptStringMessageHandler(
         outBytesLength);
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final stringResult = outBytesPtr.value.cast<Utf8>().toDartString();
+      final stringResult = outBytesPtr.value.cast<Utf8>().toDartString(length: outBytesLength.value);
       calloc.free(outBytesPtr);
       mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
     } else {
