@@ -4,6 +4,7 @@ import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as path_lib;
@@ -15,6 +16,8 @@ final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   late Client client1;
   late Client client2;
 
