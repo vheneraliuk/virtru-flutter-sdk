@@ -72,7 +72,7 @@ void main() {
           ..setDisplayMessage(_displayMessage(testData)),
       );
       final decryptedText = await client2.decryptRcaToString(rcaLink);
-      expect(testData, equals(decryptedText));
+      expect(decryptedText, equals(testData));
     });
 
     test("RCA - Persistent Protection Enabled", () async {
@@ -122,7 +122,7 @@ void main() {
       );
 
       final decryptedText = await client1.decryptRcaToString(rcaLink);
-      expect(testData, equals(decryptedText));
+      expect(decryptedText, equals(testData));
 
       await Future.delayed(const Duration(seconds: 10));
 
@@ -140,7 +140,7 @@ void main() {
           ..setDisplayMessage(_displayMessage(testData)),
       );
       final decryptedText = await client1.decryptString(tdf3String);
-      expect(testData, equals(decryptedText));
+      expect(decryptedText, equals(testData));
     });
 
     test("TDF3 - Persistent Protection Enabled", () async {
@@ -191,7 +191,7 @@ void main() {
           ),
       );
       final decryptedText = await client2.decryptString(tdf3String);
-      expect(testData, equals(decryptedText));
+      expect(decryptedText, equals(testData));
 
       await Future.delayed(const Duration(seconds: 10));
 
@@ -222,8 +222,8 @@ void main() {
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
           await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
-      final actualBytes = await inputFile.readAsBytes();
-      final expectedBytes = await decryptedFile.readAsBytes();
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
       await inputFile.delete();
       await decryptedFile.delete();
@@ -273,8 +273,8 @@ void main() {
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
           await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
-      final actualBytes = await inputFile.readAsBytes();
-      final expectedBytes = await decryptedFile.readAsBytes();
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
       await inputFile.delete();
       await encryptedFile.delete();
@@ -340,8 +340,8 @@ void main() {
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
           await client2.decryptFile(encryptedFile, XFile(decryptedFilePath));
-      final actualBytes = await inputFile.readAsBytes();
-      final expectedBytes = await decryptedFile.readAsBytes();
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
       await inputFile.delete();
       await encryptedFile.delete();
