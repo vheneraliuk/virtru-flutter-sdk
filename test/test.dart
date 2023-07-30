@@ -64,7 +64,7 @@ void main() {
       final rcaLink = await client1.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setMimeType(ContentType.text.mimeType)
           ..setDisplayMessage(_displayMessage(testData)),
       );
@@ -77,7 +77,7 @@ void main() {
       final rcaLink =
           await client1.encryptStringToRCA(EncryptStringParams(testData)
             ..shareWithUsers([userId2])
-            ..setDisplayName(testData)
+            ..setDisplayName("$testData.txt")
             ..setDisplayMessage(_displayMessage(testData))
             ..setMimeType(ContentType.text.mimeType)
             ..setPolicy(
@@ -92,7 +92,7 @@ void main() {
       final rcaLink = await client2.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
-          ..setDisplayMessage(testData)
+          ..setDisplayName("$testData.txt")
           ..setDisplayMessage(_displayMessage(testData))
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
@@ -108,7 +108,7 @@ void main() {
       final rcaLink = await client2.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
             Policy()
@@ -132,7 +132,7 @@ void main() {
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setMimeType(ContentType.text.mimeType)
           ..setDisplayMessage(_displayMessage(testData)),
       );
@@ -145,7 +145,7 @@ void main() {
       final tdf3String = await client2.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setDisplayMessage(_displayMessage(testData))
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
@@ -161,7 +161,7 @@ void main() {
       final tdf3String = await client1.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setDisplayMessage(_displayMessage(testData))
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
@@ -177,7 +177,7 @@ void main() {
       final tdf3String = await client1.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
-          ..setDisplayName(testData)
+          ..setDisplayName("$testData.txt")
           ..setDisplayMessage(_displayMessage(testData))
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
