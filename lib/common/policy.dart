@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk_flutter/policy.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
@@ -11,17 +13,17 @@ class PolicyImpl implements Policy {
   PolicyImpl._(this.ptr);
 
   @override
-  void setExpirationInDays(int days) {
+  setExpirationInDays(int days) {
     bindings.VExpireInDays(ptr, days);
   }
 
   @override
-  void setExpirationInMinutes(int minutes) {
+  setExpirationInMinutes(int minutes) {
     bindings.VExpireInMins(ptr, minutes);
   }
 
   @override
-  void setExpirationDate(DateTime? dateTime) {
+  setExpirationDate(DateTime? dateTime) {
     if (dateTime == null) {
       bindings.VRemoveExpiration(ptr);
       return;
@@ -31,12 +33,12 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void removeExpiration() {
+  removeExpiration() {
     bindings.VRemoveExpiration(ptr);
   }
 
   @override
-  void setWatermarkEnabled(bool watermarkEnabled) {
+  setWatermarkEnabled(bool watermarkEnabled) {
     if (watermarkEnabled) {
       bindings.VEnableWatermarking(ptr);
     } else {
@@ -45,7 +47,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void setPersistentProtectionEnabled(bool ppEnabled) {
+  setPersistentProtectionEnabled(bool ppEnabled) {
     if (ppEnabled) {
       bindings.VEnablePersistentProtection(ptr);
     } else {
@@ -54,7 +56,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void setPreventDownloadEnabled(bool pdEnabled) {
+  setPreventDownloadEnabled(bool pdEnabled) {
     if (pdEnabled) {
       bindings.VEnablePreventDownload(ptr);
     } else {
@@ -63,7 +65,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void setReshareEnable(bool reshareEnabled) {
+  setReshareEnable(bool reshareEnabled) {
     if (reshareEnabled) {
       bindings.VEnableReshare(ptr);
     } else {
@@ -72,7 +74,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void setCopyEnabled(bool copyEnabled) {
+   setCopyEnabled(bool copyEnabled) {
     if (copyEnabled) {
       bindings.VEnableCopy(ptr);
     } else {
@@ -81,11 +83,35 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  void setPrintEnabled(bool printEnabled) {
+   setPrintEnabled(bool printEnabled) {
     if (printEnabled) {
       bindings.VEnablePrint(ptr);
     } else {
       bindings.VDisablePrint(ptr);
     }
+  }
+
+  @override
+  shareWithUsers(List<String> usersEmail) {
+    final usersPtrList =
+        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
+    final Pointer<Pointer<Char>> usersPtr =
+        calloc.allocate(usersPtrList.length);
+    for (int i = 0; i < usersPtrList.length; i++) {
+      usersPtr[i] = usersPtrList[i];
+    }
+    bindings.VShareWithUsers(ptr, usersPtr, usersPtrList.length);
+  }
+
+  @override
+  removeUsers(List<String> usersEmail) {
+    final usersPtrList =
+        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
+    final Pointer<Pointer<Char>> usersPtr =
+        calloc.allocate(usersPtrList.length);
+    for (int i = 0; i < usersPtrList.length; i++) {
+      usersPtr[i] = usersPtrList[i];
+    }
+    bindings.VRemoveUsers(ptr, usersPtr, usersPtrList.length);
   }
 }

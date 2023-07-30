@@ -44,7 +44,7 @@ class ClientImpl implements Client {
   }
 
   @override
-  void dispose() {
+  dispose() {
     // TODO: implement dispose
   }
 
