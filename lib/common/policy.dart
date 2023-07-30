@@ -8,9 +8,9 @@ import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
 class PolicyImpl implements Policy {
   final VPolicyPtr ptr;
 
-  factory PolicyImpl() => PolicyImpl._(bindings.VPolicyCreate());
+  factory PolicyImpl() => PolicyImpl.fromPtr(bindings.VPolicyCreate());
 
-  PolicyImpl._(this.ptr);
+  PolicyImpl.fromPtr(this.ptr);
 
   @override
   setExpirationInDays(int days) {
@@ -74,7 +74,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-   setCopyEnabled(bool copyEnabled) {
+  setCopyEnabled(bool copyEnabled) {
     if (copyEnabled) {
       bindings.VEnableCopy(ptr);
     } else {
@@ -83,7 +83,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-   setPrintEnabled(bool printEnabled) {
+  setPrintEnabled(bool printEnabled) {
     if (printEnabled) {
       bindings.VEnablePrint(ptr);
     } else {
@@ -113,5 +113,10 @@ class PolicyImpl implements Policy {
       usersPtr[i] = usersPtrList[i];
     }
     bindings.VRemoveUsers(ptr, usersPtr, usersPtrList.length);
+  }
+
+  @override
+  dispose() {
+    bindings.VPolicyDestroy(ptr);
   }
 }

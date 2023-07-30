@@ -62,4 +62,10 @@ class PolicyImpl implements Policy {
     // TODO: implement shareWithUsers
     throw UnimplementedError();
   }
+
+  @override
+  dispose() {
+    // TODO: implement dispose
+    throw UnimplementedError();
+  }
 }

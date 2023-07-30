@@ -41,4 +41,7 @@ abstract class Policy {
 
   /// Remove access to the TDF file/data for the users in the given [usersEmail] list.
   removeUsers(List<String> usersEmail);
+
+  /// Dispose the Policy instance.
+  dispose();
 }

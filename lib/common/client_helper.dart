@@ -27,11 +27,12 @@ void _handleError(_AsyncResponse result) {
   }
 }
 
-Future<String> _encryptString(_EncryptStringRequest request) async {
+Future<Encrypted<String>> _encryptString(_EncryptStringRequest request) async {
   return _callNative(request, _encryptStringMessageHandler);
 }
 
-Future<String> _encryptStringToRCA(_EncryptStringRequest request) async {
+Future<Encrypted<String>> _encryptStringToRCA(
+    _EncryptStringRequest request) async {
   return _callNative(request, _encryptStringToRcaMessageHandler);
 }
 
@@ -39,7 +40,7 @@ Future<String> _encryptFile(_EncryptFileRequest request) async {
   return _callNative(request, _encryptFileMessageHandler);
 }
 
-Future<String> _encryptFileToRCA(_EncryptFileRequest request) async {
+Future<Encrypted<String>> _encryptFileToRCA(_EncryptFileRequest request) async {
   return _callNative(request, _encryptFileToRcaMessageHandler);
 }
 
@@ -57,6 +58,10 @@ Future<String> _decryptRcaToString(_DecryptRcaRequest request) async {
 
 Future<int> _decryptRcaToFile(_DecryptRcaToFileRequest request) async {
   return _callNative(request, _decryptRcaToFileMessageHandler);
+}
+
+Future<int> _fetchPolicyId(_FetchPolicyIdRequest request) async {
+  return _callNative(request, _fetchPolicyByIdMessageHandler);
 }
 
 _encryptFileMessageHandler(
@@ -100,10 +105,12 @@ _encryptFileToRcaMessageHandler(
     bindings.VEncryptFileParamsDestroy(request.vEncryptFileParamsPtr);
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
+      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
       calloc.free(outPolicyId);
       final rcaLink = outRcaLink.value.cast<Utf8>().toDartString();
       calloc.free(outRcaLink);
-      mainSendPort.send(_AsyncResponse(status: result, result: rcaLink));
+      mainSendPort.send(
+          _AsyncResponse(status: result, result: Encrypted(policyId, rcaLink)));
     } else {
       mainSendPort.send(_AsyncResponse(status: result));
     }
@@ -127,10 +134,12 @@ _encryptStringToRcaMessageHandler(
     bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
+      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
       calloc.free(outPolicyId);
       final rcaLink = outRcaLink.value.cast<Utf8>().toDartString();
       calloc.free(outRcaLink);
-      mainSendPort.send(_AsyncResponse(status: result, result: rcaLink));
+      mainSendPort.send(
+          _AsyncResponse(status: result, result: Encrypted(policyId, rcaLink)));
     } else {
       mainSendPort.send(_AsyncResponse(status: result));
     }
@@ -158,10 +167,14 @@ _encryptStringMessageHandler(
     bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
+      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
       calloc.free(outPolicyId);
-      final stringResult = outBytesPtr.value.cast<Utf8>().toDartString();
+      final stringResult = outBytesPtr.value
+          .cast<Utf8>()
+          .toDartString(length: outBytesLength.value);
       calloc.free(outBytesPtr);
-      mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
+      mainSendPort.send(_AsyncResponse(
+          status: result, result: Encrypted(policyId, stringResult)));
     } else {
       mainSendPort.send(_AsyncResponse(status: result));
     }
@@ -205,7 +218,9 @@ _decryptStringMessageHandler(
         outBytesLength);
 
     if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final stringResult = outBytesPtr.value.cast<Utf8>().toDartString(length: outBytesLength.value);
+      final stringResult = outBytesPtr.value
+          .cast<Utf8>()
+          .toDartString(length: outBytesLength.value);
       calloc.free(outBytesPtr);
       mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
     } else {
@@ -257,12 +272,42 @@ _decryptRcaToFileMessageHandler(
   }
 }
 
+_fetchPolicyByIdMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _FetchPolicyIdRequest) {
+    final policyPtr = malloc.allocate<VPolicyPtr>(sizeOf<VPolicyPtr>());
+
+    final result = bindings.VClientFetchPolicyForUUID(
+      request.vClientPtr,
+      request.policyId.toNativeUtf8().cast(),
+      policyPtr,
+    );
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      mainSendPort.send(
+          _AsyncResponse(status: result, result: policyPtr.value.address));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
 abstract class _Request {
   final int _vClientPtrAddress;
 
   _Request(this._vClientPtrAddress);
 
   VClientPtr get vClientPtr => VClientPtr.fromAddress(_vClientPtrAddress);
+}
+
+class _FetchPolicyIdRequest extends _Request {
+  final String policyId;
+
+  _FetchPolicyIdRequest(VClientPtr vClientPtr, this.policyId)
+      : super(vClientPtr.address);
 }
 
 class _EncryptStringRequest extends _Request {

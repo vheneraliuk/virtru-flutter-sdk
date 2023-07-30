@@ -66,11 +66,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _encryptFuture() async {
-    debugPrint("_encryptFuture() called!");
-    final params = virtru.EncryptStringParams("Some secure text")
-      ..setPolicy(virtru.Policy())
-      ..shareWithUsers(["vhereliuk.ctr@virtru.com"]);
-    debugPrint("Policy added!");
     String result = await client.decryptRcaToString(rcaLink);
     setState(() {
       this.result = result;

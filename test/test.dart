@@ -64,20 +64,21 @@ void main() {
 
     test("String -> RCA -> String", () async {
       const testData = "String -> RCA -> String";
-      final rcaLink = await client1.encryptStringToRCA(
+      final encryptedResult = await client1.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
           ..setDisplayName("$testData.txt")
           ..setMimeType(ContentType.text.mimeType)
           ..setDisplayMessage(_displayMessage(testData)),
       );
+      final rcaLink = encryptedResult.result;
       final decryptedText = await client2.decryptRcaToString(rcaLink);
       expect(decryptedText, equals(testData));
     });
 
     test("RCA - Persistent Protection Enabled", () async {
       const testData = "RCA - Persistent Protection Enabled";
-      final rcaLink =
+      final encryptedResult =
           await client1.encryptStringToRCA(EncryptStringParams(testData)
             ..shareWithUsers([userId2])
             ..setDisplayName("$testData.txt")
@@ -86,13 +87,14 @@ void main() {
             ..setPolicy(
               Policy()..setPersistentProtectionEnabled(true),
             ));
+      final rcaLink = encryptedResult.result;
       final decryptRcaToString = client2.decryptRcaToString(rcaLink);
       expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
     });
 
     test("RCA - Watermark Enabled", () async {
       const testData = "RCA - Watermark Enabled";
-      final rcaLink = await client2.encryptStringToRCA(
+      final encryptedResult = await client2.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
           ..setDisplayName("$testData.txt")
@@ -102,13 +104,14 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+      final rcaLink = encryptedResult.result;
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
       expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
     });
 
     test("RCA - Set Expiration", () async {
       const testData = "RCA - Set Expiration";
-      final rcaLink = await client2.encryptStringToRCA(
+      final encryptedResult = await client2.encryptStringToRCA(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
           ..setDisplayName("$testData.txt")
@@ -121,6 +124,7 @@ void main() {
           ),
       );
 
+      final rcaLink = encryptedResult.result;
       final decryptedText = await client1.decryptRcaToString(rcaLink);
       expect(decryptedText, equals(testData));
 
@@ -132,20 +136,21 @@ void main() {
 
     test("String -> TDF3 -> String", () async {
       const testData = "String -> TDF3 -> String";
-      final tdf3String = await client2.encryptString(
+      final encryptedResult = await client2.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
           ..setDisplayName("$testData.txt")
           ..setMimeType(ContentType.text.mimeType)
           ..setDisplayMessage(_displayMessage(testData)),
       );
+      final tdf3String = encryptedResult.result;
       final decryptedText = await client1.decryptString(tdf3String);
       expect(decryptedText, equals(testData));
     });
 
     test("TDF3 - Persistent Protection Enabled", () async {
       const testData = "TDF3 - Persistent Protection Enabled";
-      final tdf3String = await client2.encryptString(
+      final encryptedResult = await client2.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
           ..setDisplayName("$testData.txt")
@@ -155,13 +160,14 @@ void main() {
             Policy()..setPersistentProtectionEnabled(true),
           ),
       );
+      final tdf3String = encryptedResult.result;
       final decryptString = client1.decryptString(tdf3String);
       expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
     test("TDF3 - Watermark Enabled", () async {
       const testData = "TDF3 - Watermark Enabled";
-      final tdf3String = await client1.encryptString(
+      final encryptedResult = await client1.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
           ..setDisplayName("$testData.txt")
@@ -171,13 +177,14 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+      final tdf3String = encryptedResult.result;
       final decryptString = client2.decryptString(tdf3String);
       expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
     test("TDF3 - Set Expiration", () async {
       const testData = "TDF3 - Set Expiration";
-      final tdf3String = await client1.encryptString(
+      final encryptedResult = await client1.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId2])
           ..setDisplayName("$testData.txt")
@@ -190,6 +197,7 @@ void main() {
               )),
           ),
       );
+      final tdf3String = encryptedResult.result;
       final decryptedText = await client2.decryptString(tdf3String);
       expect(decryptedText, equals(testData));
 
@@ -198,6 +206,27 @@ void main() {
       final decryptString = client2.decryptString(tdf3String);
       expectLater(decryptString, throwsA(isA<NativeError>()));
     });
+
+    test("TDF3 - Revoke Access", () async {
+      const testData = "TDF3 - Revoke Access";
+      final encryptedResult = await client2.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      final tdf3String = encryptedResult.result;
+      final decryptedText = await client1.decryptString(tdf3String);
+      expect(decryptedText, equals(testData));
+
+      final policy = await client2.fetchPolicyById(encryptedResult.policyId);
+      policy.removeUsers([userId1]);
+      policy.dispose();
+
+      final decryptString = client1.decryptString(tdf3String);
+      expectLater(decryptString, throwsA(isA<NativeError>()));
+    }, skip: "Remove users doesn't work");
   });
 
   group("Encrypt/Decrypt Files:", () {
@@ -212,13 +241,14 @@ void main() {
         path: inputFilePath,
       );
       await inputFile.saveTo(inputFilePath);
-      final rcaLink = await client1.encryptFileToRCA(
+      final encryptedResult = await client1.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..setDisplayName("File -> RCA -> File")
           ..setDisplayMessage(_displayMessage("File -> RCA -> File"))
           ..setMimeType("image/png")
           ..shareWithUsers([userId2]),
       );
+      final rcaLink = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
           await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
@@ -237,7 +267,7 @@ void main() {
         path: inputFilePath,
       );
       await inputFile.saveTo(inputFilePath);
-      final rcaLink = await client1.encryptFileToRCA(
+      final encryptedResult = await client1.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..shareWithUsers([userId2])
           ..setDisplayName("RCA - Watermark Enabled")
@@ -247,6 +277,7 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+      final rcaLink = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptRcaToFile =
           client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
@@ -263,13 +294,14 @@ void main() {
         path: inputFilePath,
       );
       await inputFile.saveTo(inputFilePath);
-      final encryptedFile = await client2.encryptFile(
+      final encryptedResult = await client2.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File -> TDF3 -> File")
           ..setDisplayMessage(_displayMessage("File -> TDF3 -> File"))
           ..setMimeType("image/png")
           ..shareWithUsers([userId1]),
       );
+      final encryptedFile = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
           await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
@@ -290,7 +322,7 @@ void main() {
         path: inputFilePath,
       );
       await inputFile.saveTo(inputFilePath);
-      final encryptedFile = await client1.encryptFile(
+      final encryptedResult = await client1.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..shareWithUsers([userId2])
           ..setDisplayName("File - Watermark Enabled")
@@ -300,6 +332,7 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+      final encryptedFile = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptFile =
           client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
@@ -318,13 +351,14 @@ void main() {
       );
       await inputFile.saveTo(inputFilePath);
       client1.setZipProtocol(true);
-      final encryptedFile = await client1.encryptFile(
+      final encryptedResult = await client1.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File -> ZIP -> File")
           ..setDisplayMessage(_displayMessage("File -> ZIP -> File"))
           ..setMimeType("image/png")
           ..shareWithUsers([userId2]),
       );
+      final encryptedFile = encryptedResult.result;
       final extractedDir = Directory("encryptedFile");
       await extractFileToDisk(encryptedFile.path, extractedDir.path);
       final filesInDir = extractedDir

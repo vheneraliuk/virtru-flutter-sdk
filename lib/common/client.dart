@@ -7,8 +7,10 @@ import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk_flutter/client.dart';
 import 'package:virtru_sdk_flutter/common/encrypt_params.dart';
+import 'package:virtru_sdk_flutter/common/policy.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 import 'package:virtru_sdk_flutter/native_error.dart';
+import 'package:virtru_sdk_flutter/policy.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
 import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
 
@@ -57,23 +59,25 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<String> encryptString(EncryptStringParams params) async {
+  Future<Encrypted<String>> encryptString(EncryptStringParams params) async {
     return _encryptString(_EncryptStringRequest(_clientPtr, params.ptr));
   }
 
   @override
-  Future<String> encryptStringToRCA(EncryptStringParams params) async {
+  Future<Encrypted<String>> encryptStringToRCA(
+      EncryptStringParams params) async {
     return _encryptStringToRCA(_EncryptStringRequest(_clientPtr, params.ptr));
   }
 
   @override
-  Future<XFile> encryptFile(EncryptFileToFileParams params) async {
-    await _encryptFile(_EncryptFileRequest(_clientPtr, params.ptr));
-    return XFile(params.outputFilePath);
+  Future<Encrypted<XFile>> encryptFile(EncryptFileToFileParams params) async {
+    final policyId =
+        await _encryptFile(_EncryptFileRequest(_clientPtr, params.ptr));
+    return Encrypted(policyId, XFile(params.outputFilePath));
   }
 
   @override
-  Future<String> encryptFileToRCA(EncryptFileParams params) async {
+  Future<Encrypted<String>> encryptFileToRCA(EncryptFileParams params) async {
     return _encryptFileToRCA(_EncryptFileRequest(_clientPtr, params.ptr));
   }
 
@@ -108,6 +112,13 @@ class ClientImpl implements Client {
       outputFile.path,
     ));
     return XFile(outputFile.path);
+  }
+
+  @override
+  Future<Policy> fetchPolicyById(String uuid) async {
+    final policyPtrAddress =
+        await _fetchPolicyId(_FetchPolicyIdRequest(_clientPtr, uuid));
+    return PolicyImpl.fromPtr(VPolicyPtr.fromAddress(policyPtrAddress));
   }
 
   @override

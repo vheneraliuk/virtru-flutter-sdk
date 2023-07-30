@@ -1,6 +1,7 @@
 import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk_flutter/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
+import 'package:virtru_sdk_flutter/policy.dart';
 
 class ClientImpl implements Client {
   factory ClientImpl.withAppId({
@@ -44,37 +45,38 @@ class ClientImpl implements Client {
   }
 
   @override
-  dispose() {
-    // TODO: implement dispose
-  }
-
-  @override
   int setConsoleLoggingLevel(LogLevel level) {
     // TODO: implement setConsoleLoggingLevel
     throw UnimplementedError();
   }
 
   @override
-  Future<XFile> encryptFile(EncryptFileToFileParams params) {
+  Future<Encrypted<XFile>> encryptFile(EncryptFileToFileParams params) {
     // TODO: implement encryptFile
     throw UnimplementedError();
   }
 
   @override
-  Future<String> encryptFileToRCA(EncryptFileToRcaParams params) {
+  Future<Encrypted<String>> encryptFileToRCA(EncryptFileToRcaParams params) {
     // TODO: implement encryptFileToRCA
     throw UnimplementedError();
   }
 
   @override
-  Future<String> encryptString(EncryptStringParams params) {
+  Future<Encrypted<String>> encryptString(EncryptStringParams params) {
     // TODO: implement encryptString
     throw UnimplementedError();
   }
 
   @override
-  Future<String> encryptStringToRCA(EncryptStringParams params) {
+  Future<Encrypted<String>> encryptStringToRCA(EncryptStringParams params) {
     // TODO: implement encryptStringToRCA
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Policy> fetchPolicyById(String uuid) {
+    // TODO: implement fetchPolicyById
     throw UnimplementedError();
   }
 
@@ -82,5 +84,10 @@ class ClientImpl implements Client {
   int setZipProtocol(bool enableZip) {
     // TODO: implement setZipProtocol
     throw UnimplementedError();
+  }
+
+  @override
+  dispose() {
+    // TODO: implement dispose
   }
 }

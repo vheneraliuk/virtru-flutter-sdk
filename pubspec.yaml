@@ -1,5 +1,5 @@
 name: virtru_sdk_flutter
-description: A new Flutter FFI plugin project.
+description: Flutter wrapper for virtru-tdf3-cpp.
 version: 0.0.1
 homepage:
 

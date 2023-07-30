@@ -5,6 +5,7 @@ import 'package:virtru_sdk_flutter/common/client.dart'
     if (dart.library.html) 'package:virtru_sdk_flutter/web/client.dart';
 import 'package:virtru_sdk_flutter/encrypt_params.dart';
 import 'package:virtru_sdk_flutter/native_error.dart';
+import 'package:virtru_sdk_flutter/policy.dart';
 
 abstract class Client {
   /// Create a new Virtru Client instance with [userId] and [appId].
@@ -42,22 +43,22 @@ abstract class Client {
   /// Encrypt the plain data into a TDF.
   ///
   /// Throws an [NativeError] in case of failure.
-  Future<String> encryptString(EncryptStringParams params);
+  Future<Encrypted<String>> encryptString(EncryptStringParams params);
 
   /// Encrypt the plain data into a remote TDF.
   ///
   /// Throws an [NativeError] in case of failure.
-  Future<String> encryptStringToRCA(EncryptStringParams params);
+  Future<Encrypted<String>> encryptStringToRCA(EncryptStringParams params);
 
   /// Encrypt the contents of the input file into a TDF.
   ///
   /// Throws an [NativeError] in case of failure.
-  Future<XFile> encryptFile(EncryptFileToFileParams params);
+  Future<Encrypted<XFile>> encryptFile(EncryptFileToFileParams params);
 
   /// Encrypt the contents of the input file into a RCA TDF.
   ///
   /// Throws an [NativeError] in case of failure.
-  Future<String> encryptFileToRCA(EncryptFileToRcaParams params);
+  Future<Encrypted<String>> encryptFileToRCA(EncryptFileToRcaParams params);
 
   /// Decrypt the contents of the TDF file into its original content.
   ///
@@ -79,6 +80,9 @@ abstract class Client {
   /// Throws an [NativeError] in case of failure.
   Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile);
 
+  /// Return the policy associated with the given policy [uuid].
+  Future<Policy> fetchPolicyById(String uuid);
+
   /// Dispose the Virtru Client instance.
   dispose();
 }
@@ -95,4 +99,15 @@ enum LogLevel {
   final int logLevel;
 
   const LogLevel(this.logLevel);
+}
+
+///Result of encrypt operation
+class Encrypted<Res> {
+  ///Policy Uuid related to encrypted data
+  final String policyId;
+
+  ///Encrypted data/file or RCA Link
+  final Res result;
+
+  Encrypted(this.policyId, this.result);
 }
