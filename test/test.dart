@@ -124,9 +124,7 @@ void main() {
       final decryptedText = await client1.decryptRcaToString(rcaLink);
       expect(testData, equals(decryptedText));
 
-      disposeAppIdClients();
       await Future.delayed(const Duration(seconds: 10));
-      initAppIdClients();
 
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
       expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
@@ -195,9 +193,7 @@ void main() {
       final decryptedText = await client2.decryptString(tdf3String);
       expect(testData, equals(decryptedText));
 
-      disposeAppIdClients();
       await Future.delayed(const Duration(seconds: 10));
-      initAppIdClients();
 
       final decryptString = client2.decryptString(tdf3String);
       expectLater(decryptString, throwsA(isA<NativeError>()));
