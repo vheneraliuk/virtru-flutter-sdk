@@ -46,8 +46,8 @@ class ClientImpl implements Client {
   ClientImpl._(this._clientPtr);
 
   @override
-  int enableConsoleLogging() {
-    return bindings.VEnableConsoleLogging(_clientPtr, VLogLevel.VLogLevelDebug);
+  int setConsoleLoggingLevel(LogLevel level) {
+    return bindings.VEnableConsoleLogging(_clientPtr, level.logLevel);
   }
 
   @override

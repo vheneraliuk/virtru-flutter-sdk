@@ -49,8 +49,8 @@ class ClientImpl implements Client {
   }
 
   @override
-  int enableConsoleLogging() {
-    // TODO: implement enableConsoleLogging
+  int setConsoleLoggingLevel(LogLevel level) {
+    // TODO: implement setConsoleLoggingLevel
     throw UnimplementedError();
   }
 

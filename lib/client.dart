@@ -28,7 +28,7 @@ abstract class Client {
         clientSecret: clientSecret,
       );
 
-  int enableConsoleLogging();
+  int setConsoleLoggingLevel(LogLevel level);
 
   int setZipProtocol(bool enableZip);
 
@@ -49,4 +49,17 @@ abstract class Client {
   Future<XFile> decryptRcaToFile(String rcaLink, XFile outputFile);
 
   void dispose();
+}
+
+enum LogLevel {
+  trace(0),
+  debug(1),
+  info(2),
+  warn(3),
+  error(4),
+  fatal(5);
+
+  final int logLevel;
+
+  const LogLevel(this.logLevel);
 }
