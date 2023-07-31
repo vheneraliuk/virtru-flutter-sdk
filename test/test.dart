@@ -23,9 +23,9 @@ void main() {
 
   initAppIdClients() {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
-    client1.setConsoleLoggingLevel(LogLevel.fatal);
+    client1.setConsoleLoggingLevel(LogLevel.error);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
-    client2.setConsoleLoggingLevel(LogLevel.fatal);
+    client2.setConsoleLoggingLevel(LogLevel.error);
   }
 
   disposeAppIdClients() {
@@ -89,7 +89,7 @@ void main() {
             ));
       final rcaLink = encryptedResult.result;
       final decryptRcaToString = client2.decryptRcaToString(rcaLink);
-      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+      await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
     });
 
     test("RCA - Watermark Enabled", () async {
@@ -106,7 +106,7 @@ void main() {
       );
       final rcaLink = encryptedResult.result;
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
-      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+      await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
     });
 
     test("RCA - Set Expiration", () async {
@@ -131,7 +131,60 @@ void main() {
       await Future.delayed(const Duration(seconds: 10));
 
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
-      expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+      await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
+    test("RCA - Remove Users", () async {
+      const testData = "RCA - Remove users";
+      final encryptedResult = await client2.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      final rcaLink = encryptedResult.result;
+      final decryptedText = await client1.decryptRcaToString(rcaLink);
+      expect(decryptedText, equals(testData));
+
+      final policy = await client2.fetchPolicyById(encryptedResult.policyId);
+      policy.removeUsers([userId1]);
+      await client2.updatePolicyForId(policy, encryptedResult.policyId);
+      policy.dispose();
+
+      final decryptRcaToString = client1.decryptRcaToString(rcaLink);
+      await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
+    test("RCA - Revoke Access", () async {
+      const testData = "RCA - Revoke Access";
+      final encryptedResult = await client1.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      final rcaLink = encryptedResult.result;
+      final decryptedText = await client2.decryptRcaToString(rcaLink);
+      expect(decryptedText, equals(testData));
+
+      await client1.revokePolicy(encryptedResult.policyId);
+
+      final decryptRcaToString = client2.decryptRcaToString(rcaLink);
+      await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
+    });
+
+    test("RCA - Wrong Recipient", () async {
+      const testData = "RCA - Wrong Recipient";
+      final encryptStringToRCA = client1.encryptStringToRCA(
+        EncryptStringParams(testData)
+          ..shareWithUsers(["fake_user_email"])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      await expectLater(encryptStringToRCA, throwsA(isA<NativeError>()));
     });
 
     test("String -> TDF3 -> String", () async {
@@ -162,7 +215,7 @@ void main() {
       );
       final tdf3String = encryptedResult.result;
       final decryptString = client1.decryptString(tdf3String);
-      expectLater(decryptString, throwsA(isA<NativeError>()));
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
     test("TDF3 - Watermark Enabled", () async {
@@ -179,7 +232,7 @@ void main() {
       );
       final tdf3String = encryptedResult.result;
       final decryptString = client2.decryptString(tdf3String);
-      expectLater(decryptString, throwsA(isA<NativeError>()));
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
     test("TDF3 - Set Expiration", () async {
@@ -204,11 +257,11 @@ void main() {
       await Future.delayed(const Duration(seconds: 10));
 
       final decryptString = client2.decryptString(tdf3String);
-      expectLater(decryptString, throwsA(isA<NativeError>()));
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
-    test("TDF3 - Revoke Access", () async {
-      const testData = "TDF3 - Revoke Access";
+    test("TDF3 - Remove Users", () async {
+      const testData = "TDF3 - Remove users";
       final encryptedResult = await client2.encryptString(
         EncryptStringParams(testData)
           ..shareWithUsers([userId1])
@@ -222,11 +275,43 @@ void main() {
 
       final policy = await client2.fetchPolicyById(encryptedResult.policyId);
       policy.removeUsers([userId1]);
+      await client2.updatePolicyForId(policy, encryptedResult.policyId);
       policy.dispose();
 
       final decryptString = client1.decryptString(tdf3String);
-      expectLater(decryptString, throwsA(isA<NativeError>()));
-    }, skip: "Remove users doesn't work");
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
+    });
+
+    test("TDF3 - Revoke Access", () async {
+      const testData = "TDF3 - Revoke Access";
+      final encryptedResult = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      final tdf3String = encryptedResult.result;
+      final decryptedText = await client2.decryptString(tdf3String);
+      expect(decryptedText, equals(testData));
+
+      await client1.revokePolicy(encryptedResult.policyId);
+
+      final decryptString = client2.decryptString(tdf3String);
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
+    });
+
+    test("TDF3 - Wrong Recipient", () async {
+      const testData = "TDF3 - Wrong Recipient";
+      final encryptString = client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers(["fake_user_email"])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      await expectLater(encryptString, throwsA(isA<NativeError>()));
+    });
   });
 
   group("Encrypt/Decrypt Files:", () {
@@ -281,7 +366,94 @@ void main() {
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptRcaToFile =
           client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
-      expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
+      await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
+      await inputFile.delete();
+    });
+
+    test("RCA - Remove Users", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptedResult = await client2.encryptFileToRCA(
+        EncryptFileToRcaParams(inputFile)
+          ..setDisplayName("RCA - Remove Users")
+          ..setDisplayMessage(_displayMessage("RCA - Remove Users"))
+          ..setMimeType("image/png")
+          ..shareWithUsers([userId1]),
+      );
+      final rcaLink = encryptedResult.result;
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+      await client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+
+      final policy = await client2.fetchPolicyById(encryptedResult.policyId);
+      policy.removeUsers([userId1]);
+      await client2.updatePolicyForId(policy, encryptedResult.policyId);
+      policy.dispose();
+
+      final decryptRcaToFile =
+      client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+      await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
+
+      await inputFile.delete();
+      await decryptedFile.delete();
+    });
+
+    test("RCA - Revoke Access", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptedResult = await client1.encryptFileToRCA(
+        EncryptFileToRcaParams(inputFile)
+          ..setDisplayName("RCA - Revoke Access")
+          ..setDisplayMessage(_displayMessage("RCA - Revoke Access"))
+          ..setMimeType("image/png")
+          ..shareWithUsers([userId2]),
+      );
+      final rcaLink = encryptedResult.result;
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+      await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+
+      client1.revokePolicy(encryptedResult.policyId);
+
+      final decryptRcaToFile =
+      client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+      await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
+
+      await inputFile.delete();
+      await decryptedFile.delete();
+    });
+
+    test("RCA - Wrong Recipient", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptFileToRCA =
+          client2.encryptFileToRCA(EncryptFileToRcaParams(inputFile)
+            ..shareWithUsers(["fake_user_email"])
+            ..setDisplayName("RCA - Wrong Recipient")
+            ..setDisplayMessage(_displayMessage("RCA - Wrong Recipient"))
+            ..setMimeType("image/png"));
+      await expectLater(encryptFileToRCA, throwsA(isA<NativeError>()));
       await inputFile.delete();
     });
 
@@ -336,7 +508,7 @@ void main() {
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptFile =
           client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
-      expectLater(decryptFile, throwsA(isA<NativeError>()));
+      await expectLater(decryptFile, throwsA(isA<NativeError>()));
       await inputFile.delete();
       await encryptedFile.delete();
     });
@@ -381,6 +553,100 @@ void main() {
       await encryptedFile.delete();
       await decryptedFile.delete();
       await extractedDir.delete(recursive: true);
+    });
+
+    test("File - Remove Users", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      const outputFilePath = "flutter.png.tdf.html";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptedResult = await client2.encryptFile(
+        EncryptFileToFileParams(inputFile, XFile(outputFilePath))
+          ..setDisplayName("File - Remove Users")
+          ..setDisplayMessage(_displayMessage("File - Remove Users"))
+          ..setMimeType("image/png")
+          ..shareWithUsers([userId1]),
+      );
+      final encryptedFile = encryptedResult.result;
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+          await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+
+      final policy = await client2.fetchPolicyById(encryptedResult.policyId);
+      policy.removeUsers([userId1]);
+      await client2.updatePolicyForFile(policy, encryptedFile);
+      policy.dispose();
+
+      final decryptFile =
+          client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      await expectLater(decryptFile, throwsA(isA<NativeError>()));
+
+      await inputFile.delete();
+      await encryptedFile.delete();
+      await decryptedFile.delete();
+    });
+
+    test("File - Revoke Access", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      const outputFilePath = "flutter.png.tdf.html";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final encryptedResult = await client2.encryptFile(
+        EncryptFileToFileParams(inputFile, XFile(outputFilePath))
+          ..setDisplayName("File - Revoke Access")
+          ..setDisplayMessage(_displayMessage("File - Revoke Access"))
+          ..setMimeType("image/png")
+          ..shareWithUsers([userId1]),
+      );
+      final encryptedFile = encryptedResult.result;
+      const decryptedFilePath = "flutter_decrypted.png";
+      final decryptedFile =
+          await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      final actualBytes = await decryptedFile.readAsBytes();
+      final expectedBytes = await inputFile.readAsBytes();
+      expect(actualBytes, equals(expectedBytes));
+
+      client2.revokeFile(encryptedFile);
+
+      final decryptFile =
+          client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      await expectLater(decryptFile, throwsA(isA<NativeError>()));
+
+      await inputFile.delete();
+      await encryptedFile.delete();
+      await decryptedFile.delete();
+    });
+
+    test("File - Wrong Recipient", () async {
+      final bytes = await rootBundle.load("assets/flutter.png");
+      const inputFilePath = "flutter.png";
+      const outputFilePath = "flutter.png.tdf.html";
+      final inputFile = XFile.fromData(
+        bytes.buffer.asUint8List(),
+        path: inputFilePath,
+      );
+      await inputFile.saveTo(inputFilePath);
+      final outputFile = XFile(outputFilePath);
+      final encryptFile = client1
+          .encryptFile(EncryptFileToFileParams(inputFile, outputFile)
+            ..shareWithUsers(["fake_user_email"])
+            ..setDisplayName("File - Wrong Recipient")
+            ..setDisplayMessage(_displayMessage("File - Wrong Recipient"))
+            ..setMimeType("image/png"));
+      await expectLater(encryptFile, throwsA(isA<NativeError>()));
+      await inputFile.delete();
+      await outputFile.delete();
     });
   });
 }

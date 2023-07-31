@@ -87,6 +87,36 @@ class ClientImpl implements Client {
   }
 
   @override
+  setOfflineMode(bool enabled) {
+    // TODO: implement setOfflineMode
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> revokeFile(XFile tdfFile) {
+    // TODO: implement revokeFile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> revokePolicy(String uuid) {
+    // TODO: implement revokePolicy
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updatePolicyForFile(Policy policy, XFile tdfFile) {
+    // TODO: implement updatePolicyForFile
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updatePolicyForId(Policy policy, String uuid) {
+    // TODO: implement updatePolicyForId
+    throw UnimplementedError();
+  }
+
+  @override
   dispose() {
     // TODO: implement dispose
   }

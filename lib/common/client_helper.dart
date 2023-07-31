@@ -60,8 +60,24 @@ Future<int> _decryptRcaToFile(_DecryptRcaToFileRequest request) async {
   return _callNative(request, _decryptRcaToFileMessageHandler);
 }
 
-Future<int> _fetchPolicyId(_FetchPolicyIdRequest request) async {
+Future<int> _fetchPolicyById(_FetchPolicyByIdRequest request) async {
   return _callNative(request, _fetchPolicyByIdMessageHandler);
+}
+
+Future<int> _updatePolicyForId(_UpdatePolicyForIdRequest request) async {
+  return _callNative(request, _updatePolicyForIdMessageHandler);
+}
+
+Future<int> _updatePolicyForFile(_UpdatePolicyForFileRequest request) async {
+  return _callNative(request, _updatePolicyForFileMessageHandler);
+}
+
+Future<int> _revokePolicy(_RevokePolicyRequest request) async {
+  return _callNative(request, _revokePolicyMessageHandler);
+}
+
+Future<int> _revokeFile(_RevokeFileRequest request) async {
+  return _callNative(request, _revokeFileMessageHandler);
 }
 
 _encryptFileMessageHandler(
@@ -277,7 +293,7 @@ _fetchPolicyByIdMessageHandler(
   SendPort mainSendPort,
   SendErrorFunction onSendError,
 ) {
-  if (request is _FetchPolicyIdRequest) {
+  if (request is _FetchPolicyByIdRequest) {
     final policyPtr = malloc.allocate<VPolicyPtr>(sizeOf<VPolicyPtr>());
 
     final result = bindings.VClientFetchPolicyForUUID(
@@ -295,6 +311,84 @@ _fetchPolicyByIdMessageHandler(
   }
 }
 
+_updatePolicyForIdMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _UpdatePolicyForIdRequest) {
+    final result = bindings.VClientUpdatePolicyForUUID(
+      request.vClientPtr,
+      request.vPolicyPtr,
+      request.policyId.toNativeUtf8().cast(),
+    );
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      mainSendPort.send(_AsyncResponse(status: result, result: result));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
+_updatePolicyForFileMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _UpdatePolicyForFileRequest) {
+    final result = bindings.VClientUpdatePolicyForFile(
+      request.vClientPtr,
+      request.vPolicyPtr,
+      request.tdfFile.toNativeUtf8().cast(),
+    );
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      mainSendPort.send(_AsyncResponse(status: result, result: result));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
+_revokePolicyMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _RevokePolicyRequest) {
+    final result = bindings.VClientRevokePolicy(
+      request.vClientPtr,
+      request.policyId.toNativeUtf8().cast(),
+    );
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      mainSendPort.send(_AsyncResponse(status: result, result: result));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
+_revokeFileMessageHandler(
+  dynamic request,
+  SendPort mainSendPort,
+  SendErrorFunction onSendError,
+) {
+  if (request is _RevokeFileRequest) {
+    final result = bindings.VClientRevokeFile(
+      request.vClientPtr,
+      request.tdfFile.toNativeUtf8().cast(),
+    );
+
+    if (result == VSTATUS.VSTATUS_SUCCESS) {
+      mainSendPort.send(_AsyncResponse(status: result, result: result));
+    } else {
+      mainSendPort.send(_AsyncResponse(status: result));
+    }
+  }
+}
+
 abstract class _Request {
   final int _vClientPtrAddress;
 
@@ -303,11 +397,69 @@ abstract class _Request {
   VClientPtr get vClientPtr => VClientPtr.fromAddress(_vClientPtrAddress);
 }
 
-class _FetchPolicyIdRequest extends _Request {
+class _FetchPolicyByIdRequest extends _Request {
   final String policyId;
 
-  _FetchPolicyIdRequest(VClientPtr vClientPtr, this.policyId)
+  _FetchPolicyByIdRequest(VClientPtr vClientPtr, this.policyId)
       : super(vClientPtr.address);
+}
+
+class _UpdatePolicyRequest extends _Request {
+  final int _policyPtrAddress;
+
+  factory _UpdatePolicyRequest(VClientPtr vClientPtr, VPolicyPtr vPolicyPtr) =>
+      _UpdatePolicyRequest._(vClientPtr.address, vPolicyPtr.address);
+
+  _UpdatePolicyRequest._(vClientPtrAddress, this._policyPtrAddress)
+      : super(vClientPtrAddress);
+
+  VPolicyPtr get vPolicyPtr => VPolicyPtr.fromAddress(_policyPtrAddress);
+}
+
+class _UpdatePolicyForIdRequest extends _UpdatePolicyRequest {
+  final String policyId;
+
+  factory _UpdatePolicyForIdRequest(
+          VClientPtr vClientPtr, VPolicyPtr vPolicyPtr, String policyId) =>
+      _UpdatePolicyForIdRequest._(
+          vClientPtr.address, vPolicyPtr.address, policyId);
+
+  _UpdatePolicyForIdRequest._(
+      vClientPtrAddress, policyPtrAddress, this.policyId)
+      : super._(vClientPtrAddress, policyPtrAddress);
+}
+
+class _UpdatePolicyForFileRequest extends _UpdatePolicyRequest {
+  final String tdfFile;
+
+  factory _UpdatePolicyForFileRequest(
+          VClientPtr vClientPtr, VPolicyPtr vPolicyPtr, String tdfFile) =>
+      _UpdatePolicyForFileRequest._(
+          vClientPtr.address, vPolicyPtr.address, tdfFile);
+
+  _UpdatePolicyForFileRequest._(
+      vClientPtrAddress, policyPtrAddress, this.tdfFile)
+      : super._(vClientPtrAddress, policyPtrAddress);
+}
+
+class _RevokePolicyRequest extends _Request {
+  final String policyId;
+
+  factory _RevokePolicyRequest(VClientPtr vClientPtr, String policyId) =>
+      _RevokePolicyRequest._(vClientPtr.address, policyId);
+
+  _RevokePolicyRequest._(vClientPtrAddress, this.policyId)
+      : super(vClientPtrAddress);
+}
+
+class _RevokeFileRequest extends _Request {
+  final String tdfFile;
+
+  factory _RevokeFileRequest(VClientPtr vClientPtr, String tdfFile) =>
+      _RevokeFileRequest._(vClientPtr.address, tdfFile);
+
+  _RevokeFileRequest._(vClientPtrAddress, this.tdfFile)
+      : super(vClientPtrAddress);
 }
 
 class _EncryptStringRequest extends _Request {

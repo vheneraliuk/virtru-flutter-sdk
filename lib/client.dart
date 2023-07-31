@@ -83,6 +83,23 @@ abstract class Client {
   /// Return the policy associated with the given policy [uuid].
   Future<Policy> fetchPolicyById(String uuid);
 
+  /// Update the policy for a given TDF file using its policy [uuid].
+  Future<void> updatePolicyForId(Policy policy, String uuid);
+
+  /// Update the policy for a given [tdfFile].
+  Future<void> updatePolicyForFile(Policy policy, XFile tdfFile);
+
+  /// Revoke access for all the share users of the tdf file using the policy [uuid].
+  Future<void> revokePolicy(String uuid);
+
+  /// Revoke access for all the share users of the [tdfFile].
+  Future<void> revokeFile(XFile tdfFile);
+
+  /// Set the offline mode.
+  /// If [enabled], all the TDFs will be encrypted in offline mode that means the symmetric key
+  /// stored part of the TDF instead on the server.
+  setOfflineMode(bool enabled);
+
   /// Dispose the Virtru Client instance.
   dispose();
 }

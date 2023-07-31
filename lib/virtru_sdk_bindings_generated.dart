@@ -489,6 +489,94 @@ class VirtruSdkFlutterBindings {
           int Function(
               VClientPtr, ffi.Pointer<ffi.Char>, ffi.Pointer<VPolicyPtr>)>();
 
+  /// Update the policy for a given TDF file using its policy uuid.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param vPolicyPtr - The pointer to Virtru policy opaque object.
+  /// \param policyUUID - The policy uuid of the TDF
+  int VClientUpdatePolicyForUUID(
+    VClientPtr vClientPtr,
+    VPolicyPtr vPolicyPtr,
+    ffi.Pointer<ffi.Char> policyUUID,
+  ) {
+    return _VClientUpdatePolicyForUUID(
+      vClientPtr,
+      vPolicyPtr,
+      policyUUID,
+    );
+  }
+
+  late final _VClientUpdatePolicyForUUIDPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(VClientPtr, VPolicyPtr,
+              ffi.Pointer<ffi.Char>)>>('VClientUpdatePolicyForUUID');
+  late final _VClientUpdatePolicyForUUID =
+      _VClientUpdatePolicyForUUIDPtr.asFunction<
+          int Function(VClientPtr, VPolicyPtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Update the policy for a given TDF file.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param vPolicyPtr - The pointer to Virtru policy opaque object.
+  /// \param tdfFile - The TDF file path
+  int VClientUpdatePolicyForFile(
+    VClientPtr vClientPtr,
+    VPolicyPtr vPolicyPtr,
+    ffi.Pointer<ffi.Char> tdfFile,
+  ) {
+    return _VClientUpdatePolicyForFile(
+      vClientPtr,
+      vPolicyPtr,
+      tdfFile,
+    );
+  }
+
+  late final _VClientUpdatePolicyForFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(VClientPtr, VPolicyPtr,
+              ffi.Pointer<ffi.Char>)>>('VClientUpdatePolicyForFile');
+  late final _VClientUpdatePolicyForFile =
+      _VClientUpdatePolicyForFilePtr.asFunction<
+          int Function(VClientPtr, VPolicyPtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Revoke access for all the share users of the tdf files using the policy uuid.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param policyUUID - The policy uuid of the TDF
+  int VClientRevokePolicy(
+    VClientPtr vClientPtr,
+    ffi.Pointer<ffi.Char> policyUUID,
+  ) {
+    return _VClientRevokePolicy(
+      vClientPtr,
+      policyUUID,
+    );
+  }
+
+  late final _VClientRevokePolicyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              VClientPtr, ffi.Pointer<ffi.Char>)>>('VClientRevokePolicy');
+  late final _VClientRevokePolicy = _VClientRevokePolicyPtr.asFunction<
+      int Function(VClientPtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Revoke access for all the share users of the tdf file.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfFile - The TDF file path
+  int VClientRevokeFile(
+    VClientPtr vClientPtr,
+    ffi.Pointer<ffi.Char> tdfFile,
+  ) {
+    return _VClientRevokeFile(
+      vClientPtr,
+      tdfFile,
+    );
+  }
+
+  late final _VClientRevokeFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              VClientPtr, ffi.Pointer<ffi.Char>)>>('VClientRevokeFile');
+  late final _VClientRevokeFile = _VClientRevokeFilePtr.asFunction<
+      int Function(VClientPtr, ffi.Pointer<ffi.Char>)>();
+
   /// Set the KAS url that will be used for tdf3 operations.
   /// \param vClientPtr - The pointer to Virtru client opaque object.
   /// \param kasUrl - The base URL for KAS communication.

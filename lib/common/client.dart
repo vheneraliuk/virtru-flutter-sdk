@@ -117,8 +117,35 @@ class ClientImpl implements Client {
   @override
   Future<Policy> fetchPolicyById(String uuid) async {
     final policyPtrAddress =
-        await _fetchPolicyId(_FetchPolicyIdRequest(_clientPtr, uuid));
+        await _fetchPolicyById(_FetchPolicyByIdRequest(_clientPtr, uuid));
     return PolicyImpl.fromPtr(VPolicyPtr.fromAddress(policyPtrAddress));
+  }
+
+  @override
+  Future<void> updatePolicyForId(Policy policy, String uuid) async {
+    await _updatePolicyForId(
+        _UpdatePolicyForIdRequest(_clientPtr, policy.ptr, uuid));
+  }
+
+  @override
+  Future<void> updatePolicyForFile(Policy policy, XFile tdfFile) async {
+    await _updatePolicyForFile(
+        _UpdatePolicyForFileRequest(_clientPtr, policy.ptr, tdfFile.path));
+  }
+
+  @override
+  Future<void> revokePolicy(String uuid) async {
+    await _revokePolicy(_RevokePolicyRequest(_clientPtr, uuid));
+  }
+
+  @override
+  Future<void> revokeFile(XFile tdfFile) async {
+    await _revokeFile(_RevokeFileRequest(_clientPtr, tdfFile.path));
+  }
+
+  @override
+  setOfflineMode(bool enabled) {
+    bindings.VSetOffline(_clientPtr, enabled ? 1 : 0);
   }
 
   @override
@@ -133,4 +160,8 @@ extension on EncryptStringParams {
 
 extension on EncryptFileParams {
   VEncryptFileParamsPtr get ptr => (this as EncryptFileParamsImpl).ptr;
+}
+
+extension on Policy {
+  VPolicyPtr get ptr => (this as PolicyImpl).ptr;
 }
