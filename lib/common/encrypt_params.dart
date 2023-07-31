@@ -10,6 +10,7 @@ import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
 
 class EncryptStringParamsImpl implements EncryptStringParams {
   final VEncryptStringParamsPtr ptr;
+  VPolicyPtr? policyPtr;
 
   factory EncryptStringParamsImpl(String data) {
     return EncryptStringParamsImpl._(bindings.VEncryptStringParamsCreate(
@@ -20,6 +21,7 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 
   @override
   setPolicy(Policy policy) {
+    policyPtr = policy.ptr;
     bindings.VEncryptStringParamsSetPolicy(ptr, policy.ptr);
   }
 
@@ -58,6 +60,7 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 class EncryptFileParamsImpl
     implements EncryptFileToRcaParams, EncryptFileToFileParams {
   final VEncryptFileParamsPtr ptr;
+  VPolicyPtr? policyPtr;
   final String _outputFilePath;
 
   factory EncryptFileParamsImpl.fileToFile(XFile inputFile, XFile outputFile) {
@@ -79,6 +82,7 @@ class EncryptFileParamsImpl
 
   @override
   setPolicy(Policy policy) {
+    policyPtr = policy.ptr;
     bindings.VEncryptFileParamsSetPolicy(ptr, policy.ptr);
   }
 

@@ -60,25 +60,35 @@ class ClientImpl implements Client {
 
   @override
   Future<Encrypted<String>> encryptString(EncryptStringParams params) async {
-    return _encryptString(_EncryptStringRequest(_clientPtr, params.ptr));
+    final result =
+        await _encryptString(_EncryptStringRequest(_clientPtr, params.ptr));
+    _disposePolicy(params.policyPtr);
+    return result;
   }
 
   @override
   Future<Encrypted<String>> encryptStringToRCA(
       EncryptStringParams params) async {
-    return _encryptStringToRCA(_EncryptStringRequest(_clientPtr, params.ptr));
+    final result = await _encryptStringToRCA(
+        _EncryptStringRequest(_clientPtr, params.ptr));
+    _disposePolicy(params.policyPtr);
+    return result;
   }
 
   @override
   Future<Encrypted<XFile>> encryptFile(EncryptFileToFileParams params) async {
     final policyId =
         await _encryptFile(_EncryptFileRequest(_clientPtr, params.ptr));
+    _disposePolicy(params.policyPtr);
     return Encrypted(policyId, XFile(params.outputFilePath));
   }
 
   @override
-  Future<Encrypted<String>> encryptFileToRCA(EncryptFileParams params) async {
-    return _encryptFileToRCA(_EncryptFileRequest(_clientPtr, params.ptr));
+  Future<Encrypted<String>> encryptFileToRCA(EncryptFileToRcaParams params) async {
+    final result =
+        await _encryptFileToRCA(_EncryptFileRequest(_clientPtr, params.ptr));
+    _disposePolicy(params.policyPtr);
+    return result;
   }
 
   @override
@@ -152,14 +162,23 @@ class ClientImpl implements Client {
   dispose() {
     bindings.VClientDestroy(_clientPtr);
   }
+
+  void _disposePolicy(VPolicyPtr? policyPtr) {
+    if (policyPtr == null) return;
+    bindings.VPolicyDestroy(policyPtr);
+  }
 }
 
 extension on EncryptStringParams {
   VEncryptStringParamsPtr get ptr => (this as EncryptStringParamsImpl).ptr;
+
+  VPolicyPtr? get policyPtr => (this as EncryptStringParamsImpl).policyPtr;
 }
 
 extension on EncryptFileParams {
   VEncryptFileParamsPtr get ptr => (this as EncryptFileParamsImpl).ptr;
+
+  VPolicyPtr? get policyPtr => (this as EncryptFileParamsImpl).policyPtr;
 }
 
 extension on Policy {

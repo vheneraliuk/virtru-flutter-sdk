@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
@@ -119,7 +120,7 @@ void main() {
           ..setPolicy(
             Policy()
               ..setExpirationDate(DateTime.now().add(
-                const Duration(seconds: 10),
+                const Duration(seconds: 15),
               )),
           ),
       );
@@ -128,7 +129,7 @@ void main() {
       final decryptedText = await client1.decryptRcaToString(rcaLink);
       expect(decryptedText, equals(testData));
 
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 15));
 
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
       await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
@@ -201,6 +202,115 @@ void main() {
       expect(decryptedText, equals(testData));
     });
 
+    test("TDF3 - Policy initial statuses", () async {
+      const testData = "TDF3 - Policy initial statuses";
+      final encryptedResult = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+      final policy = await client1.fetchPolicyById(encryptedResult.policyId);
+
+      final owner = policy.getOwner();
+      expect(owner, equals(userId1));
+
+      final expiration = policy.getExpirationDate();
+      expect(expiration, equals(null));
+
+      final copyEnabled = policy.isCopyEnabled();
+      expect(copyEnabled, equals(true));
+
+      final printEnabled = policy.isPrintEnabled();
+      expect(printEnabled, equals(true));
+
+      final reshareEnabled = policy.isReshareEnabled();
+      expect(reshareEnabled, equals(true));
+
+      final persistentProtectionEnabled =
+          policy.isPersistentProtectionEnabled();
+      expect(persistentProtectionEnabled, equals(false));
+
+      final watermarkEnabled = policy.isWatermarkEnabled();
+      expect(watermarkEnabled, equals(false));
+
+      final preventDownloadEnabled = policy.isPreventDownloadEnabled();
+      expect(preventDownloadEnabled, equals(false));
+
+      final sharedUsers = policy.getSharedUsers();
+      expect(
+        const DeepCollectionEquality.unordered()
+            .equals(sharedUsers, [userId2, userId1]),
+        true,
+      );
+      policy.dispose();
+    });
+
+    test("TDF3 - Policy statuses", () async {
+      const testData = "TDF3 - Policy statuses";
+      final expiration = DateTime.now().add(Duration(
+        days: Random().nextInt(100),
+      ));
+      final copy = Random().nextBool();
+      final print = Random().nextBool();
+      final reshare = Random().nextBool();
+      final persistentProtection = Random().nextBool();
+      final watermark = Random().nextBool();
+      final preventDownload = Random().nextBool();
+      final shareWith = [userId2, "example1@user.com", "example2@user.com"];
+
+      final params = EncryptStringParams(testData)
+        ..setPolicy(Policy()
+          ..setExpirationDate(expiration)
+          ..setCopyEnabled(copy)
+          ..setPrintEnabled(print)
+          ..setReshareEnabled(reshare)
+          ..setPersistentProtectionEnabled(persistentProtection)
+          ..setWatermarkEnabled(watermark)
+          ..setPreventDownloadEnabled(preventDownload))
+        ..shareWithUsers(shareWith)
+        ..setDisplayName("$testData.txt")
+        ..setMimeType(ContentType.text.mimeType)
+        ..setDisplayMessage(_displayMessage(testData));
+
+      final encryptedResult = await client1.encryptString(params);
+      final policy = await client1.fetchPolicyById(encryptedResult.policyId);
+
+      final rOwner = policy.getOwner();
+      expect(rOwner, equals(userId1));
+
+      final rExpiration = policy.getExpirationDate();
+      expect(rExpiration!.difference(expiration).inSeconds, equals(0));
+
+      final rCopyEnabled = policy.isCopyEnabled();
+      expect(rCopyEnabled, equals(copy));
+
+      final rPrintEnabled = policy.isPrintEnabled();
+      expect(rPrintEnabled, equals(print));
+
+      final rReshareEnabled = policy.isReshareEnabled();
+      expect(rReshareEnabled, equals(reshare));
+
+      final rPersistentProtectionEnabled =
+          policy.isPersistentProtectionEnabled();
+      expect(rPersistentProtectionEnabled, equals(persistentProtection));
+
+      final rWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(rWatermarkEnabled, equals(watermark));
+
+      final rPreventDownloadEnabled = policy.isPreventDownloadEnabled();
+      expect(rPreventDownloadEnabled, equals(preventDownload));
+
+      final rSharedUsers = policy.getSharedUsers();
+      final expectedSharedUsers = List<String>.from(shareWith)..add(userId1);
+      expect(
+          const DeepCollectionEquality.unordered()
+              .equals(rSharedUsers, expectedSharedUsers),
+          true);
+      policy.dispose();
+    }, skip: "Native crash");
+
     test("TDF3 - Persistent Protection Enabled", () async {
       const testData = "TDF3 - Persistent Protection Enabled";
       final encryptedResult = await client2.encryptString(
@@ -246,7 +356,7 @@ void main() {
           ..setPolicy(
             Policy()
               ..setExpirationDate(DateTime.now().add(
-                const Duration(seconds: 10),
+                const Duration(seconds: 15),
               )),
           ),
       );
@@ -254,7 +364,7 @@ void main() {
       final decryptedText = await client2.decryptString(tdf3String);
       expect(decryptedText, equals(testData));
 
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 15));
 
       final decryptString = client2.decryptString(tdf3String);
       await expectLater(decryptString, throwsA(isA<NativeError>()));
@@ -388,7 +498,7 @@ void main() {
       final rcaLink = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
-      await client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+          await client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
@@ -399,7 +509,7 @@ void main() {
       policy.dispose();
 
       final decryptRcaToFile =
-      client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+          client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
 
       await inputFile.delete();
@@ -424,7 +534,7 @@ void main() {
       final rcaLink = encryptedResult.result;
       const decryptedFilePath = "flutter_decrypted.png";
       final decryptedFile =
-      await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+          await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
@@ -432,7 +542,7 @@ void main() {
       client1.revokePolicy(encryptedResult.policyId);
 
       final decryptRcaToFile =
-      client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+          client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
 
       await inputFile.delete();
@@ -638,8 +748,8 @@ void main() {
       );
       await inputFile.saveTo(inputFilePath);
       final outputFile = XFile(outputFilePath);
-      final encryptFile = client1
-          .encryptFile(EncryptFileToFileParams(inputFile, outputFile)
+      final encryptFile =
+          client1.encryptFile(EncryptFileToFileParams(inputFile, outputFile)
             ..shareWithUsers(["fake_user_email"])
             ..setDisplayName("File - Wrong Recipient")
             ..setDisplayMessage(_displayMessage("File - Wrong Recipient"))

@@ -7,11 +7,6 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  setCopyEnabled(bool copyEnabled) {
-    // TODO: implement setCopyEnabled
-  }
-
-  @override
   setExpirationDate(DateTime? dateTime) {
     // TODO: implement setExpirationDate
   }
@@ -24,6 +19,11 @@ class PolicyImpl implements Policy {
   @override
   setExpirationInMinutes(int minutes) {
     // TODO: implement setExpirationInMinutes
+  }
+
+  @override
+  setCopyEnabled(bool copyEnabled) {
+    // TODO: implement setCopyEnabled
   }
 
   @override
@@ -42,7 +42,7 @@ class PolicyImpl implements Policy {
   }
 
   @override
-  setReshareEnable(bool reshareEnabled) {
+  setReshareEnabled(bool reshareEnabled) {
     // TODO: implement setReshareEnable
   }
 
@@ -66,6 +66,66 @@ class PolicyImpl implements Policy {
   @override
   dispose() {
     // TODO: implement dispose
+    throw UnimplementedError();
+  }
+
+  @override
+  DateTime? getExpirationDate() {
+    // TODO: implement getExpirationDate
+    throw UnimplementedError();
+  }
+
+  @override
+  String getOwner() {
+    // TODO: implement getOwner
+    throw UnimplementedError();
+  }
+
+  @override
+  List<String> getSharedUsers() {
+    // TODO: implement getSharedUsers
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isCopyEnabled() {
+    // TODO: implement isCopyEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isPersistentProtectionEnabled() {
+    // TODO: implement isPersistentProtectionEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isPreventDownloadEnabled() {
+    // TODO: implement isPreventDownloadEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isPrintEnabled() {
+    // TODO: implement isPrintEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  isReshareEnabled() {
+    // TODO: implement isReshareEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isWatermarkEnabled() {
+    // TODO: implement isWatermarkEnabled
+    throw UnimplementedError();
+  }
+
+  @override
+  setOwner(String owner) {
+    // TODO: implement setOwner
     throw UnimplementedError();
   }
 }
