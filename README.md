@@ -81,7 +81,7 @@ void main() async {
   final protectedFile = encryptResult.result;
 
   print("PolicyID: $policyId");
-  print("Encrypted file: ${ await protectedFile.readAsString()}");
+  print("Encrypted file: ${await protectedFile.readAsString()}");
 
   client.dispose();
 }
@@ -148,10 +148,10 @@ You don’t need to include your email address when encrypting. You will already
 Call encrypt and check out the resulting file:
 
 ```dart
-  final encryptedResult = await client.encryptString(params);
+  final encryptResult = await client.encryptString(params);
 
-  final policyId = encryptedResult.policyId;
-  final encryptedData = encryptedResult.result;
+  final policyId = encryptResult.policyId;
+  final encryptedData = encryptResult.result;
 
   print("PolicyId: $policyId");
   print("Encrypted data: $encryptedData");
@@ -172,10 +172,10 @@ void main() async {
   final params = EncryptStringParams(sensitiveData)
     ..shareWithUsers(["alice@nowhere.com"]);
 
-  final encryptedResult = await client.encryptString(params);
+  final encryptResult = await client.encryptString(params);
 
-  final policyId = encryptedResult.policyId;
-  final encryptedData = encryptedResult.result;
+  final policyId = encryptResult.policyId;
+  final encryptedData = encryptResult.result;
 
   print("PolicyId: $policyId");
   print("Encrypted data: $encryptedData");
