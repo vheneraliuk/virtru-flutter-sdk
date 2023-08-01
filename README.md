@@ -19,7 +19,7 @@ dependencies:
       ref: main
 ```
 
-# Get an identity
+### Get an identity
 
 So Alice, who should own your sensitive data? You, obviously!
 
