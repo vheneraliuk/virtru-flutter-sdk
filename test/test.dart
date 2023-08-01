@@ -309,7 +309,7 @@ void main() {
               .equals(rSharedUsers, expectedSharedUsers),
           true);
       policy.dispose();
-    }, skip: "Native crash");
+    });
 
     test("TDF3 - Persistent Protection Enabled", () async {
       const testData = "TDF3 - Persistent Protection Enabled";
