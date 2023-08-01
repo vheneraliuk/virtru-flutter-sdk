@@ -1,5 +1,5 @@
-import 'package:virtru_sdk_flutter/common/policy.dart'
-    if (dart.library.html) 'package:virtru_sdk_flutter/web/policy.dart';
+import 'package:virtru_sdk/common/policy.dart'
+    if (dart.library.html) 'package:virtru_sdk/web/policy.dart';
 
 abstract class Policy {
   /// Create a new policy object.

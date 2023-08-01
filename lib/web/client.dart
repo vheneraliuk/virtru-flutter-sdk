@@ -1,7 +1,7 @@
 import 'package:cross_file/cross_file.dart';
-import 'package:virtru_sdk_flutter/client.dart';
-import 'package:virtru_sdk_flutter/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
+import 'package:virtru_sdk/client.dart';
+import 'package:virtru_sdk/encrypt_params.dart';
+import 'package:virtru_sdk/policy.dart';
 
 class ClientImpl implements Client {
   factory ClientImpl.withAppId({

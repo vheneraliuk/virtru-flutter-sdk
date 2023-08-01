@@ -1,6 +1,6 @@
 import 'package:cross_file/cross_file.dart';
-import 'package:virtru_sdk_flutter/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
+import 'package:virtru_sdk/encrypt_params.dart';
+import 'package:virtru_sdk/policy.dart';
 
 class EncryptStringParamsImpl implements EncryptStringParams {
   factory EncryptStringParamsImpl(String data) {

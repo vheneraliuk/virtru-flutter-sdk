@@ -5,14 +5,14 @@ import 'dart:isolate';
 import 'package:cross_file/cross_file.dart';
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
-import 'package:virtru_sdk_flutter/client.dart';
-import 'package:virtru_sdk_flutter/common/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/common/policy.dart';
-import 'package:virtru_sdk_flutter/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/native_error.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
+import 'package:virtru_sdk/client.dart';
+import 'package:virtru_sdk/common/encrypt_params.dart';
+import 'package:virtru_sdk/common/policy.dart';
+import 'package:virtru_sdk/encrypt_params.dart';
+import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/policy.dart';
+import 'package:virtru_sdk/virtru_sdk_bindings.dart';
+import 'package:virtru_sdk/virtru_sdk_bindings_generated.dart';
 
 part 'client_helper.dart';
 
@@ -84,7 +84,8 @@ class ClientImpl implements Client {
   }
 
   @override
-  Future<Encrypted<String>> encryptFileToRCA(EncryptFileToRcaParams params) async {
+  Future<Encrypted<String>> encryptFileToRCA(
+      EncryptFileToRcaParams params) async {
     final result =
         await _encryptFileToRCA(_EncryptFileRequest(_clientPtr, params.ptr));
     _disposePolicy(params.policyPtr);

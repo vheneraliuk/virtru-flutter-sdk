@@ -13,7 +13,7 @@ Just add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  virtru_sdk_flutter:
+  virtru_sdk:
     git:
       url: https://github.com/vheneraliuk/virtru-flutter-sdk.git
       ref: main
@@ -32,7 +32,7 @@ For safekeeping, don’t hard code your appID anywhere.
 To protect your sensitive data, we’ll need a Virtru client. We’ll associate anything you encrypt with your email and appId. Let’s make sure your email and appId can create a valid Virtru client to make further SDK calls:
 
 ```dart
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk/virtru_sdk.dart';
 
 void main() async {
   const email = "alice@example.com";
@@ -63,7 +63,7 @@ Finally, encrypt the data:
 Here is the complete source code:
 
 ```dart
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk/virtru_sdk.dart';
 
 void main() async {
   const email = "alice@example.com";
@@ -92,7 +92,7 @@ void main() async {
 Now, let’s say you need to see your sensitive data again. Authenticate as `alice@example.com` again and you can decrypt the protected file:
 
 ```dart
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk/virtru_sdk.dart';
 
 void main() async {
   const email = "alice@example.com";
@@ -160,7 +160,7 @@ Call encrypt and check out the resulting file:
 Here's the complete source code:
 
 ```dart
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk/virtru_sdk.dart';
 
 void main() async {
   const email = "alice@example.com";

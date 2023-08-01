@@ -3,7 +3,7 @@
 # Run `pod lib lint virtru_sdk_flutter.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'virtru_sdk_flutter'
+  s.name             = 'virtru_sdk'
   s.version          = '0.0.1'
   s.summary          = 'Flutter wrapper for virtru-tdf3-cpp'
   s.description      = <<-DESC

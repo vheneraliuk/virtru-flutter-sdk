@@ -1,10 +1,10 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
-import 'package:virtru_sdk_flutter/native_error.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_bindings_generated.dart';
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter_bindings.dart';
+import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/policy.dart';
+import 'package:virtru_sdk/virtru_sdk_bindings_generated.dart';
+import 'package:virtru_sdk/virtru_sdk_bindings.dart';
 
 class PolicyImpl implements Policy {
   final VPolicyPtr ptr;

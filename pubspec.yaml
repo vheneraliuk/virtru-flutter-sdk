@@ -1,4 +1,4 @@
-name: virtru_sdk_flutter
+name: virtru_sdk
 description: Flutter wrapper for virtru-tdf3-cpp.
 version: 0.0.1
 homepage:

@@ -1,3 +1,3 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.virtru.sdk.flutter">
+  package="com.virtru.sdk">
 </manifest>

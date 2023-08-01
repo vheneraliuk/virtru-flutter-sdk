@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:cross_file/cross_file.dart';
-import 'package:virtru_sdk_flutter/common/client.dart'
-    if (dart.library.html) 'package:virtru_sdk_flutter/web/client.dart';
-import 'package:virtru_sdk_flutter/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/native_error.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
+import 'package:virtru_sdk/common/client.dart'
+    if (dart.library.html) 'package:virtru_sdk/web/client.dart';
+import 'package:virtru_sdk/encrypt_params.dart';
+import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/policy.dart';
 
 abstract class Client {
   /// Create a new Virtru Client instance with [userId] and [appId].

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as path_lib;
-import 'package:virtru_sdk_flutter/virtru_sdk_flutter.dart';
+import 'package:virtru_sdk/virtru_sdk.dart';
 
 final userId1 = Platform.environment["TEST_USER_ID_1"]!;
 final appId1 = Platform.environment["TEST_APP_ID_1"]!;

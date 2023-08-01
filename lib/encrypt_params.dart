@@ -1,7 +1,7 @@
 import 'package:cross_file/cross_file.dart';
-import 'package:virtru_sdk_flutter/common/encrypt_params.dart'
-    if (dart.library.html) 'package:virtru_sdk_flutter/web/encrypt_params.dart';
-import 'package:virtru_sdk_flutter/policy.dart';
+import 'package:virtru_sdk/common/encrypt_params.dart'
+    if (dart.library.html) 'package:virtru_sdk/web/encrypt_params.dart';
+import 'package:virtru_sdk/policy.dart';
 
 /// Encrypt string params for Virtru Client encrypt operations.
 abstract class EncryptStringParams {

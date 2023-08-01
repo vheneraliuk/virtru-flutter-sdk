@@ -1,4 +1,4 @@
-import 'package:virtru_sdk_flutter/policy.dart';
+import 'package:virtru_sdk/policy.dart';
 
 class PolicyImpl implements Policy {
   @override
