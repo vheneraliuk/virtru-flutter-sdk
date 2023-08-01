@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
