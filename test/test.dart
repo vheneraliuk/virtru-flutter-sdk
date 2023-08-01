@@ -24,9 +24,9 @@ void main() {
 
   initAppIdClients() {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
-    client1.setConsoleLoggingLevel(LogLevel.error);
+    client1.setConsoleLoggingLevel(LogLevel.fatal);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
-    client2.setConsoleLoggingLevel(LogLevel.error);
+    client2.setConsoleLoggingLevel(LogLevel.fatal);
   }
 
   disposeAppIdClients() {
