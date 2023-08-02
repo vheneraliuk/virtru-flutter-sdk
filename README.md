@@ -1,11 +1,10 @@
-# Virtru SDK for Flutter
-[![Unit Tests](https://github.com/vheneraliuk/virtru-flutter-sdk/actions/workflows/test.yaml/badge.svg)](https://github.com/vheneraliuk/virtru-flutter-sdk/actions/workflows/test.yaml)
+# Virtru SDK for Flutter · [![Unit Tests](https://github.com/vheneraliuk/virtru-flutter-sdk/actions/workflows/test.yaml/badge.svg)](https://github.com/vheneraliuk/virtru-flutter-sdk/actions/workflows/test.yaml)
 
 You’re Alice and you have sensitive data to protect. (Don’t we all?)
 
 Let’s see the fastest way to protect it server-side with the Virtru SDK.
 
-## Quick Start: Flutter
+## Getting Started
 
 ### Install the SDK
 
@@ -122,66 +121,7 @@ We could build a whole set of functionality to authenticate, decrypt, and render
 Secure Reader will ask you to authenticate. (You’re still Alice, aren’t you?)
 
 ![Secure Reader](https://www.virtru.com/hubfs/Dev%20Docs/auth.png)
-
 And if you authenticate with the same email address you used to create the HTML file, you should be able to view it in Secure Reader:
 
 ![Secure Reader](https://www.virtru.com/hubfs/Dev%20Docs/decrypt.png)
-
 Congrats Alice! **Your sensitive data is safe wherever it goes.**
-
-## Encryption
-
-Now that the Virtru SDK knows you’re Alice, you can protect your first piece of data.
-
-### Encryption Basics
-
-Before calling encrypt, you need to specify a few simple parameters.
-
-You don’t need to include your email address when encrypting. You will already have access to anything you encrypt because you authenticated. But if you want anyone else to have access (like another one of your emails, `alice@nowhere.com`), you could include them here:
-
-```dart
-  const sensitiveData = "sensitive data";
-  final params = EncryptStringParams(sensitiveData)
-    ..shareWithUsers(["alice@nowhere.com"]);
-```
-
-Call encrypt and check out the resulting file:
-
-```dart
-  final encryptResult = await client.encryptString(params);
-
-  final policyId = encryptResult.policyId;
-  final encryptedData = encryptResult.result;
-
-  print("PolicyId: $policyId");
-  print("Encrypted data: $encryptedData");
-```
-
-Here's the complete source code:
-
-```dart
-import 'package:virtru_sdk/virtru_sdk.dart';
-
-void main() async {
-  const email = "alice@example.com";
-  const appId = "APP_ID_FROM_DASHBOARD";
-
-  final client = Client.withAppId(userId: email, appId: appId);
-
-  const sensitiveData = "sensitive data";
-  final params = EncryptStringParams(sensitiveData)
-    ..shareWithUsers(["alice@nowhere.com"]);
-
-  final encryptResult = await client.encryptString(params);
-
-  final policyId = encryptResult.policyId;
-  final encryptedData = encryptResult.result;
-
-  print("PolicyId: $policyId");
-  print("Encrypted data: $encryptedData");
-
-  client.dispose();
-}
-```
-
-Now, your sensitive data is safe.
