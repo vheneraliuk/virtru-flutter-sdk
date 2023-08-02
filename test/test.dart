@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:virtru_sdk/virtru_sdk.dart';
@@ -16,8 +14,6 @@ final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
   late Client client1;
   late Client client2;
 
@@ -87,6 +83,13 @@ void main() {
             ..setPolicy(
               Policy()..setPersistentProtectionEnabled(true),
             ));
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client1.fetchPolicyById(policyId);
+      final isPersistentProtected = policy.isPersistentProtectionEnabled();
+      expect(isPersistentProtected, equals(true));
+      policy.dispose();
+
       final rcaLink = encryptedResult.result;
       final decryptRcaToString = client2.decryptRcaToString(rcaLink);
       await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
@@ -104,6 +107,13 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client2.fetchPolicyById(policyId);
+      final isWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(isWatermarkEnabled, equals(true));
+      policy.dispose();
+
       final rcaLink = encryptedResult.result;
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
       await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
@@ -322,6 +332,13 @@ void main() {
             Policy()..setPersistentProtectionEnabled(true),
           ),
       );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client2.fetchPolicyById(policyId);
+      final isPersistentProtected = policy.isPersistentProtectionEnabled();
+      expect(isPersistentProtected, equals(true));
+      policy.dispose();
+
       final tdf3String = encryptedResult.result;
       final decryptString = client1.decryptString(tdf3String);
       await expectLater(decryptString, throwsA(isA<NativeError>()));
@@ -339,6 +356,13 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client1.fetchPolicyById(policyId);
+      final isWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(isWatermarkEnabled, equals(true));
+      policy.dispose();
+
       final tdf3String = encryptedResult.result;
       final decryptString = client2.decryptString(tdf3String);
       await expectLater(decryptString, throwsA(isA<NativeError>()));
@@ -428,13 +452,8 @@ void main() {
     tearDown(disposeAppIdClients);
 
     test("File -> RCA -> File", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
       final encryptedResult = await client1.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..setDisplayName("File -> RCA -> File")
@@ -443,24 +462,18 @@ void main() {
           ..shareWithUsers([userId2]),
       );
       final rcaLink = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/flutter_decrypted.png";
       final decryptedFile =
           await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
-      await inputFile.delete();
-      await decryptedFile.delete();
+      await decryptedFile.deleteIfExists();
     });
 
     test("RCA - Watermark Enabled", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
       final encryptedResult = await client1.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..shareWithUsers([userId2])
@@ -471,22 +484,25 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client1.fetchPolicyById(policyId);
+      final isWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(isWatermarkEnabled, equals(true));
+      policy.dispose();
+
       final rcaLink = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/flutter_decrypted.png";
+      final decryptedFile = XFile(decryptedFilePath);
       final decryptRcaToFile =
-          client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
+          client2.decryptRcaToFile(rcaLink, decryptedFile);
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
-      await inputFile.delete();
+      await decryptedFile.deleteIfExists();
     });
 
     test("RCA - Remove Users", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
       final encryptedResult = await client2.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..setDisplayName("RCA - Remove Users")
@@ -495,7 +511,7 @@ void main() {
           ..shareWithUsers([userId1]),
       );
       final rcaLink = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/flutter_decrypted.png";
       final decryptedFile =
           await client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
@@ -511,27 +527,21 @@ void main() {
           client1.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
 
-      await inputFile.delete();
-      await decryptedFile.delete();
+      await decryptedFile.deleteIfExists();
     });
 
     test("RCA - Revoke Access", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/sensitive.txt";
+      final inputFile = XFile(inputFilePath);
       final encryptedResult = await client1.encryptFileToRCA(
         EncryptFileToRcaParams(inputFile)
           ..setDisplayName("RCA - Revoke Access")
           ..setDisplayMessage(_displayMessage("RCA - Revoke Access"))
-          ..setMimeType("image/png")
+          ..setMimeType(ContentType.text.mimeType)
           ..shareWithUsers([userId2]),
       );
       final rcaLink = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/sensitive_decrypted.txt";
       final decryptedFile =
           await client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
@@ -544,37 +554,25 @@ void main() {
           client2.decryptRcaToFile(rcaLink, XFile(decryptedFilePath));
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
 
-      await inputFile.delete();
-      await decryptedFile.delete();
+      await decryptedFile.deleteIfExists();
     });
 
     test("RCA - Wrong Recipient", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/sensitive.txt";
+      final inputFile = XFile(inputFilePath);
       final encryptFileToRCA =
           client2.encryptFileToRCA(EncryptFileToRcaParams(inputFile)
             ..shareWithUsers(["fake_user_email"])
             ..setDisplayName("RCA - Wrong Recipient")
             ..setDisplayMessage(_displayMessage("RCA - Wrong Recipient"))
-            ..setMimeType("image/png"));
+            ..setMimeType(ContentType.text.mimeType));
       await expectLater(encryptFileToRCA, throwsA(isA<NativeError>()));
-      await inputFile.delete();
     });
 
     test("File -> TDF3 -> File", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.html";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/flutter.png.tdf.html";
       final encryptedResult = await client2.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File -> TDF3 -> File")
@@ -583,26 +581,20 @@ void main() {
           ..shareWithUsers([userId1]),
       );
       final encryptedFile = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/flutter_decrypted.png";
       final decryptedFile =
           await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
-      await inputFile.delete();
-      await encryptedFile.delete();
-      await decryptedFile.delete();
+      await encryptedFile.deleteIfExists();
+      await decryptedFile.deleteIfExists();
     });
 
     test("File - Watermark Enabled", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.html";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/flutter.png.tdf.html";
       final encryptedResult = await client1.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..shareWithUsers([userId2])
@@ -613,30 +605,31 @@ void main() {
             Policy()..setWatermarkEnabled(true),
           ),
       );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client1.fetchPolicyById(policyId);
+      final isWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(isWatermarkEnabled, equals(true));
+      policy.dispose();
+
       final encryptedFile = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
-      final decryptFile =
-          client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
+      final decryptedFile = XFile("test_data/flutter_decrypted.png");
+      final decryptFile = client1.decryptFile(encryptedFile, decryptedFile);
       await expectLater(decryptFile, throwsA(isA<NativeError>()));
-      await inputFile.delete();
-      await encryptedFile.delete();
+      await encryptedFile.deleteIfExists();
+      await decryptedFile.deleteIfExists();
     });
 
     test("File -> ZIP -> File", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.zip";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/sensitive.txt";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/sensitive.txt.tdf.zip";
       client1.setZipProtocol(true);
       final encryptedResult = await client1.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File -> ZIP -> File")
           ..setDisplayMessage(_displayMessage("File -> ZIP -> File"))
-          ..setMimeType("image/png")
+          ..setMimeType(ContentType.text.mimeType)
           ..shareWithUsers([userId2]),
       );
       final encryptedFile = encryptedResult.result;
@@ -648,31 +641,25 @@ void main() {
           .toList();
       expect(filesInDir.length, equals(2));
       expect(
-        const ListEquality<String>()
+        const DeepCollectionEquality.unordered()
             .equals(filesInDir, ["0.manifest.json", "0.payload"]),
         true,
       );
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/sensitive_decrypted.txt";
       final decryptedFile =
           await client2.decryptFile(encryptedFile, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
-      await inputFile.delete();
-      await encryptedFile.delete();
-      await decryptedFile.delete();
+      await encryptedFile.deleteIfExists();
+      await decryptedFile.deleteIfExists();
       await extractedDir.delete(recursive: true);
     });
 
     test("File - Remove Users", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.html";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/flutter.png.tdf.html";
       final encryptedResult = await client2.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File - Remove Users")
@@ -681,7 +668,7 @@ void main() {
           ..shareWithUsers([userId1]),
       );
       final encryptedFile = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/flutter_decrypted.png";
       final decryptedFile =
           await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
@@ -697,29 +684,23 @@ void main() {
           client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       await expectLater(decryptFile, throwsA(isA<NativeError>()));
 
-      await inputFile.delete();
-      await encryptedFile.delete();
-      await decryptedFile.delete();
+      await encryptedFile.deleteIfExists();
+      await decryptedFile.deleteIfExists();
     });
 
     test("File - Revoke Access", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.html";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/sensitive.txt";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/sensitive.txt.tdf.html";
       final encryptedResult = await client2.encryptFile(
         EncryptFileToFileParams(inputFile, XFile(outputFilePath))
           ..setDisplayName("File - Revoke Access")
           ..setDisplayMessage(_displayMessage("File - Revoke Access"))
-          ..setMimeType("image/png")
+          ..setMimeType(ContentType.text.mimeType)
           ..shareWithUsers([userId1]),
       );
       final encryptedFile = encryptedResult.result;
-      const decryptedFilePath = "flutter_decrypted.png";
+      const decryptedFilePath = "test_data/sensitive_decrypted.txt";
       final decryptedFile =
           await client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       final actualBytes = await decryptedFile.readAsBytes();
@@ -732,20 +713,14 @@ void main() {
           client1.decryptFile(encryptedFile, XFile(decryptedFilePath));
       await expectLater(decryptFile, throwsA(isA<NativeError>()));
 
-      await inputFile.delete();
-      await encryptedFile.delete();
-      await decryptedFile.delete();
+      await encryptedFile.deleteIfExists();
+      await decryptedFile.deleteIfExists();
     });
 
     test("File - Wrong Recipient", () async {
-      final bytes = await rootBundle.load("assets/flutter.png");
-      const inputFilePath = "flutter.png";
-      const outputFilePath = "flutter.png.tdf.html";
-      final inputFile = XFile.fromData(
-        bytes.buffer.asUint8List(),
-        path: inputFilePath,
-      );
-      await inputFile.saveTo(inputFilePath);
+      const inputFilePath = "test_data/flutter.png";
+      final inputFile = XFile(inputFilePath);
+      const outputFilePath = "test_data/flutter.png.tdf.html";
       final outputFile = XFile(outputFilePath);
       final encryptFile =
           client1.encryptFile(EncryptFileToFileParams(inputFile, outputFile)
@@ -754,8 +729,7 @@ void main() {
             ..setDisplayMessage(_displayMessage("File - Wrong Recipient"))
             ..setMimeType("image/png"));
       await expectLater(encryptFile, throwsA(isA<NativeError>()));
-      await inputFile.delete();
-      await outputFile.delete();
+      await outputFile.deleteIfExists();
     });
   });
 }
@@ -763,9 +737,12 @@ void main() {
 _displayMessage(String testName) => "Flutter SDK test: '$testName'";
 
 extension Delete on XFile {
-  delete() async {
+  deleteIfExists() async {
     if (!kIsWeb) {
-      await File(path).delete();
+      final file = File(path);
+      if (await file.exists()) {
+        await file.delete();
+      }
     }
   }
 }
