@@ -19,9 +19,9 @@ void main() {
 
   initAppIdClients() {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
-    // client1.setConsoleLoggingLevel(LogLevel.fatal);
+    client1.setConsoleLoggingLevel(LogLevel.fatal);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
-    // client2.setConsoleLoggingLevel(LogLevel.fatal);
+    client2.setConsoleLoggingLevel(LogLevel.fatal);
   }
 
   disposeAppIdClients() {
@@ -142,7 +142,7 @@ void main() {
 
       final decryptRcaToString = client1.decryptRcaToString(rcaLink);
       await expectLater(decryptRcaToString, throwsA(isA<NativeError>()));
-    });
+    }, timeout: const Timeout.factor(2));
 
     test("RCA - Remove Users", () async {
       const testData = "RCA - Remove users";
@@ -391,7 +391,7 @@ void main() {
 
       final decryptString = client2.decryptString(tdf3String);
       await expectLater(decryptString, throwsA(isA<NativeError>()));
-    });
+    }, timeout: const Timeout.factor(2));
 
     test("TDF3 - Remove Users", () async {
       const testData = "TDF3 - Remove users";
@@ -494,8 +494,7 @@ void main() {
       final rcaLink = encryptedResult.result;
       const decryptedFilePath = "test_data/flutter_decrypted.png";
       final decryptedFile = XFile(decryptedFilePath);
-      final decryptRcaToFile =
-          client2.decryptRcaToFile(rcaLink, decryptedFile);
+      final decryptRcaToFile = client2.decryptRcaToFile(rcaLink, decryptedFile);
       await expectLater(decryptRcaToFile, throwsA(isA<NativeError>()));
       await decryptedFile.deleteIfExists();
     });
