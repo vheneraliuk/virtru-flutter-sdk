@@ -12,9 +12,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  run_tests:
+  unit_tests:
 
     runs-on: macos-latest
+    timeout-minutes: 10
     permissions:
       pull-requests: write
 
