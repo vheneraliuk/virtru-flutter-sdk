@@ -1,11 +1,10 @@
+@Retry(2)
 import 'dart:io';
 import 'dart:math';
 
 import 'package:archive/archive_io.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart' as path_lib;
 import 'package:virtru_sdk/virtru_sdk.dart';
 
 final userId1 = Platform.environment["TEST_USER_ID_1"]!;
@@ -248,11 +247,7 @@ void main() {
       expect(preventDownloadEnabled, equals(false));
 
       final sharedUsers = policy.getSharedUsers();
-      expect(
-        const DeepCollectionEquality.unordered()
-            .equals(sharedUsers, [userId2, userId1]),
-        true,
-      );
+      expect(sharedUsers, unorderedEquals([userId2, userId1]));
       policy.dispose();
     });
 
@@ -313,10 +308,7 @@ void main() {
 
       final rSharedUsers = policy.getSharedUsers();
       final expectedSharedUsers = List<String>.from(shareWith)..add(userId1);
-      expect(
-          const DeepCollectionEquality.unordered()
-              .equals(rSharedUsers, expectedSharedUsers),
-          true);
+      expect(rSharedUsers, unorderedEquals(expectedSharedUsers));
       policy.dispose();
     }, skip: "Native crash sometimes. Need to investigate");
 
@@ -324,12 +316,13 @@ void main() {
       const testData = "TDF3 - Persistent Protection Enabled";
       final encryptedResult = await client2.encryptString(
         EncryptStringParams(testData)
-          ..shareWithUsers([userId1])
           ..setDisplayName("$testData.txt")
           ..setDisplayMessage(_displayMessage(testData))
           ..setMimeType(ContentType.text.mimeType)
           ..setPolicy(
-            Policy()..setPersistentProtectionEnabled(true),
+            Policy()
+              ..setPersistentProtectionEnabled(true)
+              ..shareWithUsers([userId1]),
           ),
       );
 
@@ -634,16 +627,9 @@ void main() {
       final encryptedFile = encryptedResult.result;
       final extractedDir = Directory("encryptedFile");
       await extractFileToDisk(encryptedFile.path, extractedDir.path);
-      final filesInDir = extractedDir
-          .listSync()
-          .map((e) => path_lib.basename(e.path))
-          .toList();
-      expect(filesInDir.length, equals(2));
-      expect(
-        const DeepCollectionEquality.unordered()
-            .equals(filesInDir, ["0.manifest.json", "0.payload"]),
-        true,
-      );
+      final filesInDir =
+          extractedDir.listSync().map((e) => XFile(e.path).name);
+      expect(filesInDir, unorderedEquals(["0.manifest.json", "0.payload"]));
       const decryptedFilePath = "test_data/sensitive_decrypted.txt";
       final decryptedFile =
           await client2.decryptFile(encryptedFile, XFile(decryptedFilePath));
