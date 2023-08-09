@@ -1,7 +1,9 @@
 part of 'client.dart';
 
-Future<Res> _callNative<Req extends _Request, Res>(
-    Req request, isolateHandled) async {
+Future<Res> _callNative<Req extends _Request, Res>({
+  required Req request,
+  required isolateHandled,
+}) async {
   final completer = Completer<_AsyncResponse>();
   final worker = Worker();
   await worker.init(
@@ -27,366 +29,314 @@ void _handleError(_AsyncResponse result) {
   }
 }
 
+_asyncNativeCall<Req extends _Request, Res, Nat extends _NativeResult>({
+  required Nat Function(Req request) requestCall,
+  required Res Function(Nat nativeResult) resultTransform,
+}) =>
+    (
+      dynamic request,
+      SendPort mainSendPort,
+      SendErrorFunction onSendError,
+    ) {
+      if (request is Req) {
+        final result = requestCall(request);
+
+        if (result.status == VSTATUS.VSTATUS_SUCCESS) {
+          mainSendPort.send(_AsyncResponse(
+              status: result.status, result: resultTransform(result)));
+        } else {
+          mainSendPort.send(_AsyncResponse(status: result.status));
+        }
+      }
+    };
+
 Future<Encrypted<String>> _encryptString(_EncryptStringRequest request) async {
-  return _callNative(request, _encryptStringMessageHandler);
+  return _callNative(
+      request: request,
+      isolateHandled: _asyncNativeCall<_EncryptStringRequest, Encrypted<String>,
+          _EncryptedString>(
+        requestCall: (request) {
+          final outPolicyId =
+              malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+          final outBytesPtr = malloc.allocate<VBytesPtr>(sizeOf<VBytesPtr>());
+          final outBytesLength =
+              malloc.allocate<VBytesLength>(sizeOf<VBytesLength>());
+          final status = bindings.VClientEncryptString(
+            request.vClientPtr,
+            request.vEncryptStringParamsPtr,
+            outPolicyId,
+            outBytesPtr,
+            outBytesLength,
+          );
+
+          bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
+          return _EncryptedString(
+              status, outPolicyId, outBytesPtr, outBytesLength);
+        },
+        resultTransform: (nativeResult) {
+          final policyId = nativeResult.outPolicyId.toDartString();
+          calloc.free(nativeResult.outPolicyId);
+          final stringResult = nativeResult.outBytesPtr
+              .toDartString(length: nativeResult.outBytesLength.value);
+          calloc.free(nativeResult.outBytesPtr);
+          return Encrypted(policyId, stringResult);
+        },
+      ));
 }
 
 Future<Encrypted<String>> _encryptStringToRCA(
     _EncryptStringRequest request) async {
-  return _callNative(request, _encryptStringToRcaMessageHandler);
+  return _callNative(
+      request: request,
+      isolateHandled: _asyncNativeCall<_EncryptStringRequest, Encrypted<String>,
+          _EncryptedRca>(
+        requestCall: (request) {
+          final outPolicyId =
+              malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+          final outRcaLink =
+              malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+          final status = bindings.VClientEncryptStringToRCA(
+            request.vClientPtr,
+            request.vEncryptStringParamsPtr,
+            outPolicyId,
+            outRcaLink,
+          );
+          bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
+          return _EncryptedRca(status, outPolicyId, outRcaLink);
+        },
+        resultTransform: (nativeResult) {
+          final policyId = nativeResult.outPolicyId.toDartString();
+          calloc.free(nativeResult.outPolicyId);
+          final rcaLink = nativeResult.outRcaLink.toDartString();
+          calloc.free(nativeResult.outRcaLink);
+          return Encrypted(policyId, rcaLink);
+        },
+      ));
 }
 
 Future<String> _encryptFile(_EncryptFileRequest request) async {
-  return _callNative(request, _encryptFileMessageHandler);
+  return _callNative(
+      request: request,
+      isolateHandled: _asyncNativeCall<_EncryptFileRequest, String, _Policy>(
+        requestCall: (request) {
+          final outPolicyId =
+              malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+          final status = bindings.VClientEncryptFile(
+            request.vClientPtr,
+            request.vEncryptFileParamsPtr,
+            outPolicyId,
+          );
+          bindings.VEncryptFileParamsDestroy(request.vEncryptFileParamsPtr);
+          return _Policy(status, outPolicyId);
+        },
+        resultTransform: (nativeResult) {
+          final policyId = nativeResult.outPolicyId.toDartString();
+          calloc.free(nativeResult.outPolicyId);
+          return policyId;
+        },
+      ));
 }
 
 Future<Encrypted<String>> _encryptFileToRCA(_EncryptFileRequest request) async {
-  return _callNative(request, _encryptFileToRcaMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled:
+        _asyncNativeCall<_EncryptFileRequest, Encrypted<String>, _EncryptedRca>(
+      requestCall: (request) {
+        final outPolicyId =
+            malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+        final outRcaLink =
+            malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+        final status = bindings.VClientEncryptFileToRCA(
+          request.vClientPtr,
+          request.vEncryptFileParamsPtr,
+          outPolicyId,
+          outRcaLink,
+        );
+        bindings.VEncryptFileParamsDestroy(request.vEncryptFileParamsPtr);
+        return _EncryptedRca(status, outPolicyId, outRcaLink);
+      },
+      resultTransform: (nativeResult) {
+        final policyId = nativeResult.outPolicyId.toDartString();
+        calloc.free(nativeResult.outPolicyId);
+        final rcaLink = nativeResult.outRcaLink.toDartString();
+        calloc.free(nativeResult.outRcaLink);
+        return Encrypted(policyId, rcaLink);
+      },
+    ),
+  );
 }
 
 Future<int> _decryptFile(_DecryptFileRequest request) async {
-  return _callNative(request, _decryptFileMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled: _asyncNativeCall<_DecryptFileRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientDecryptFile(
+          request.vClientPtr,
+          request.inputFile.toNativeString(),
+          request.outputFile.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 Future<String> _decryptString(_DecryptStringRequest request) async {
-  return _callNative(request, _decryptStringMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled:
+        _asyncNativeCall<_DecryptStringRequest, String, _DecryptedString>(
+      requestCall: (request) {
+        final outBytesPtr = malloc.allocate<VBytesPtr>(sizeOf<VBytesPtr>());
+        final outBytesLength =
+            malloc.allocate<VBytesLength>(sizeOf<VBytesLength>());
+        final status = bindings.VClientDecryptString(
+            request.vClientPtr,
+            request.tdf3.toNativeString(),
+            request.tdf3.length,
+            outBytesPtr,
+            outBytesLength);
+        return _DecryptedString(status, outBytesPtr, outBytesLength);
+      },
+      resultTransform: (nativeResult) {
+        final stringResult = nativeResult.outBytesPtr
+            .toDartString(length: nativeResult.outBytesLength.value);
+        calloc.free(nativeResult.outBytesPtr);
+        return stringResult;
+      },
+    ),
+  );
 }
 
 Future<String> _decryptRcaToString(_DecryptRcaRequest request) async {
-  return _callNative(request, _decryptRcaToStringMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled: _asyncNativeCall<_DecryptRcaRequest, String, _DecryptedRca>(
+      requestCall: (request) {
+        final outString =
+            malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
+        final status = bindings.VClientDecryptRCAToString(
+          request.vClientPtr,
+          request.rcaLink.toNativeString(),
+          outString,
+        );
+        return _DecryptedRca(status, outString);
+      },
+      resultTransform: (nativeResult) {
+        final stringResult = nativeResult.result.toDartString();
+        calloc.free(nativeResult.result);
+        return stringResult;
+      },
+    ),
+  );
 }
 
 Future<int> _decryptRcaToFile(_DecryptRcaToFileRequest request) async {
-  return _callNative(request, _decryptRcaToFileMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled:
+        _asyncNativeCall<_DecryptRcaToFileRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientDecryptRCAToFile(
+          request.vClientPtr,
+          request.rcaLink.toNativeString(),
+          request.outputFile.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 Future<int> _fetchPolicyById(_FetchPolicyByIdRequest request) async {
-  return _callNative(request, _fetchPolicyByIdMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled: _asyncNativeCall<_FetchPolicyByIdRequest, int, _PolicyId>(
+      requestCall: (request) {
+        final policyPtr = malloc.allocate<VPolicyPtr>(sizeOf<VPolicyPtr>());
+
+        final status = bindings.VClientFetchPolicyForUUID(
+          request.vClientPtr,
+          request.policyId.toNativeString(),
+          policyPtr,
+        );
+        return _PolicyId(status, policyPtr.value.address);
+      },
+      resultTransform: (nativeResult) => nativeResult.policyIdAddress,
+    ),
+  );
 }
 
 Future<int> _updatePolicyForId(_UpdatePolicyForIdRequest request) async {
-  return _callNative(request, _updatePolicyForIdMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled:
+        _asyncNativeCall<_UpdatePolicyForIdRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientUpdatePolicyForUUID(
+          request.vClientPtr,
+          request.vPolicyPtr,
+          request.policyId.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 Future<int> _updatePolicyForFile(_UpdatePolicyForFileRequest request) async {
-  return _callNative(request, _updatePolicyForFileMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled:
+        _asyncNativeCall<_UpdatePolicyForFileRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientUpdatePolicyForFile(
+          request.vClientPtr,
+          request.vPolicyPtr,
+          request.tdfFile.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 Future<int> _revokePolicy(_RevokePolicyRequest request) async {
-  return _callNative(request, _revokePolicyMessageHandler);
+  return _callNative(
+    request: request,
+    isolateHandled: _asyncNativeCall<_RevokePolicyRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientRevokePolicy(
+          request.vClientPtr,
+          request.policyId.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 Future<int> _revokeFile(_RevokeFileRequest request) async {
-  return _callNative(request, _revokeFileMessageHandler);
-}
-
-_encryptFileMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _EncryptFileRequest) {
-    final outPolicyId = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final result = bindings.VClientEncryptFile(
-      request.vClientPtr,
-      request.vEncryptFileParamsPtr,
-      outPolicyId,
-    );
-    bindings.VEncryptFileParamsDestroy(request.vEncryptFileParamsPtr);
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
-      calloc.free(outPolicyId);
-      mainSendPort.send(_AsyncResponse(status: result, result: policyId));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_encryptFileToRcaMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _EncryptFileRequest) {
-    final outPolicyId = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final outRcaLink = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final result = bindings.VClientEncryptFileToRCA(
-      request.vClientPtr,
-      request.vEncryptFileParamsPtr,
-      outPolicyId,
-      outRcaLink,
-    );
-    bindings.VEncryptFileParamsDestroy(request.vEncryptFileParamsPtr);
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
-      calloc.free(outPolicyId);
-      final rcaLink = outRcaLink.value.cast<Utf8>().toDartString();
-      calloc.free(outRcaLink);
-      mainSendPort.send(
-          _AsyncResponse(status: result, result: Encrypted(policyId, rcaLink)));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_encryptStringToRcaMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _EncryptStringRequest) {
-    final outPolicyId = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final outRcaLink = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final result = bindings.VClientEncryptStringToRCA(
-      request.vClientPtr,
-      request.vEncryptStringParamsPtr,
-      outPolicyId,
-      outRcaLink,
-    );
-    bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
-      calloc.free(outPolicyId);
-      final rcaLink = outRcaLink.value.cast<Utf8>().toDartString();
-      calloc.free(outRcaLink);
-      mainSendPort.send(
-          _AsyncResponse(status: result, result: Encrypted(policyId, rcaLink)));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_encryptStringMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _EncryptStringRequest) {
-    final outPolicyId = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final outBytesPtr = malloc.allocate<VBytesPtr>(sizeOf<VBytesPtr>());
-    final outBytesLength =
-        malloc.allocate<VBytesLength>(sizeOf<VBytesLength>());
-    final result = bindings.VClientEncryptString(
-      request.vClientPtr,
-      request.vEncryptStringParamsPtr,
-      outPolicyId,
-      outBytesPtr,
-      outBytesLength,
-    );
-
-    bindings.VEncryptStringParamsDestroy(request.vEncryptStringParamsPtr);
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final policyId = outPolicyId.value.cast<Utf8>().toDartString();
-      calloc.free(outPolicyId);
-      final stringResult = outBytesPtr.value
-          .cast<Utf8>()
-          .toDartString(length: outBytesLength.value);
-      calloc.free(outBytesPtr);
-      mainSendPort.send(_AsyncResponse(
-          status: result, result: Encrypted(policyId, stringResult)));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_decryptFileMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _DecryptFileRequest) {
-    final result = bindings.VClientDecryptFile(
-      request.vClientPtr,
-      request.inputFile.toNativeUtf8().cast(),
-      request.outputFile.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_decryptStringMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _DecryptStringRequest) {
-    final outBytesPtr = malloc.allocate<VBytesPtr>(sizeOf<VBytesPtr>());
-    final outBytesLength =
-        malloc.allocate<VBytesLength>(sizeOf<VBytesLength>());
-    final result = bindings.VClientDecryptString(
-        request.vClientPtr,
-        request.tdf3.toNativeUtf8().cast(),
-        request.tdf3.length,
-        outBytesPtr,
-        outBytesLength);
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final stringResult = outBytesPtr.value
-          .cast<Utf8>()
-          .toDartString(length: outBytesLength.value);
-      calloc.free(outBytesPtr);
-      mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_decryptRcaToStringMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _DecryptRcaRequest) {
-    final outString = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
-    final result = bindings.VClientDecryptRCAToString(
-      request.vClientPtr,
-      request.rcaLink.toNativeUtf8().cast(),
-      outString,
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      final stringResult = outString.value.cast<Utf8>().toDartString();
-      calloc.free(outString);
-      mainSendPort.send(_AsyncResponse(status: result, result: stringResult));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_decryptRcaToFileMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _DecryptRcaToFileRequest) {
-    final result = bindings.VClientDecryptRCAToFile(
-      request.vClientPtr,
-      request.rcaLink.toNativeUtf8().cast(),
-      request.outputFile.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_fetchPolicyByIdMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _FetchPolicyByIdRequest) {
-    final policyPtr = malloc.allocate<VPolicyPtr>(sizeOf<VPolicyPtr>());
-
-    final result = bindings.VClientFetchPolicyForUUID(
-      request.vClientPtr,
-      request.policyId.toNativeUtf8().cast(),
-      policyPtr,
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(
-          _AsyncResponse(status: result, result: policyPtr.value.address));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_updatePolicyForIdMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _UpdatePolicyForIdRequest) {
-    final result = bindings.VClientUpdatePolicyForUUID(
-      request.vClientPtr,
-      request.vPolicyPtr,
-      request.policyId.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_updatePolicyForFileMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _UpdatePolicyForFileRequest) {
-    final result = bindings.VClientUpdatePolicyForFile(
-      request.vClientPtr,
-      request.vPolicyPtr,
-      request.tdfFile.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_revokePolicyMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _RevokePolicyRequest) {
-    final result = bindings.VClientRevokePolicy(
-      request.vClientPtr,
-      request.policyId.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
-}
-
-_revokeFileMessageHandler(
-  dynamic request,
-  SendPort mainSendPort,
-  SendErrorFunction onSendError,
-) {
-  if (request is _RevokeFileRequest) {
-    final result = bindings.VClientRevokeFile(
-      request.vClientPtr,
-      request.tdfFile.toNativeUtf8().cast(),
-    );
-
-    if (result == VSTATUS.VSTATUS_SUCCESS) {
-      mainSendPort.send(_AsyncResponse(status: result, result: result));
-    } else {
-      mainSendPort.send(_AsyncResponse(status: result));
-    }
-  }
+  return _callNative(
+    request: request,
+    isolateHandled: _asyncNativeCall<_RevokeFileRequest, int, _NativeResult>(
+      requestCall: (request) {
+        final status = bindings.VClientRevokeFile(
+          request.vClientPtr,
+          request.tdfFile.toNativeString(),
+        );
+        return _NativeResult(status);
+      },
+      resultTransform: (nativeResult) => nativeResult.status,
+    ),
+  );
 }
 
 abstract class _Request {
@@ -543,4 +493,81 @@ class _AsyncResponse<Res> {
   final int status;
 
   const _AsyncResponse({required this.status, this.result});
+}
+
+class _NativeResult {
+  final int status;
+
+  _NativeResult(this.status);
+}
+
+class _Policy extends _NativeResult {
+  final Pointer<Pointer<Char>> outPolicyId;
+
+  _Policy(super.status, this.outPolicyId);
+}
+
+class _PolicyId extends _NativeResult {
+  final int policyIdAddress;
+
+  _PolicyId(super.status, this.policyIdAddress);
+}
+
+class _DecryptedRca extends _NativeResult {
+  final Pointer<Pointer<Char>> result;
+
+  _DecryptedRca(super.status, this.result);
+}
+
+class _EncryptedString extends _Policy {
+  final Pointer<VBytesPtr> outBytesPtr;
+  final Pointer<VBytesLength> outBytesLength;
+
+  _EncryptedString(
+    super.status,
+    super.outPolicyId,
+    this.outBytesPtr,
+    this.outBytesLength,
+  );
+}
+
+class _DecryptedString extends _NativeResult {
+  final Pointer<VBytesPtr> outBytesPtr;
+  final Pointer<VBytesLength> outBytesLength;
+
+  _DecryptedString(
+    super.status,
+    this.outBytesPtr,
+    this.outBytesLength,
+  );
+}
+
+class _EncryptedRca extends _Policy {
+  final Pointer<Pointer<Char>> outRcaLink;
+
+  _EncryptedRca(
+    super.status,
+    super.outPolicyId,
+    this.outRcaLink,
+  );
+}
+
+//convert from Pointer<Pointer<Char>> to dart string (utf8) and vice versa (dart string to native string)
+
+extension NativeConverter on String {
+  toNativeString() => toNativeUtf8().cast<Char>();
+
+}
+
+extension PointerCharConverter on Pointer<Pointer<Char>> {
+  toDartString({int? length}) => value.toDartString(length: length);
+}
+
+extension PointerUnsignedCharConverter on Pointer<Pointer<UnsignedChar>> {
+  toDartString({int? length}) =>
+      value.cast<Utf8>().toDartString(length: length);
+}
+
+extension CharConverter on Pointer<Char> {
+  toDartString({int? length}) => cast<Utf8>().toDartString(length: length);
 }

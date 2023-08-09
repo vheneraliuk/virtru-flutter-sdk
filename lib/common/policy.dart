@@ -1,6 +1,8 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
+import 'package:virtru_sdk/common/client.dart';
+import 'package:virtru_sdk/common/encrypt_params.dart';
 import 'package:virtru_sdk/native_error.dart';
 import 'package:virtru_sdk/policy.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings_generated.dart';
@@ -15,7 +17,7 @@ class PolicyImpl implements Policy {
 
   @override
   setOwner(String owner) {
-    final status = bindings.VSetOwner(ptr, owner.toNativeUtf8().cast<Char>());
+    final status = bindings.VSetOwner(ptr, owner.toNativeString());
     _handleError(status);
   }
 
@@ -24,7 +26,7 @@ class PolicyImpl implements Policy {
     final owner = malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
     final status = bindings.VGetOwner(ptr, owner);
     _handleError(status);
-    final ownerEmail = owner.value.cast<Utf8>().toDartString();
+    final ownerEmail = owner.toDartString();
     calloc.free(owner);
     return ownerEmail;
   }
@@ -46,7 +48,7 @@ class PolicyImpl implements Policy {
       return;
     }
     final dateString = dateTime.toUtc().toIso8601String();
-    bindings.VAddExpiration(ptr, dateString.toNativeUtf8().cast<Char>());
+    bindings.VAddExpiration(ptr, dateString.toNativeString());
   }
 
   @override
@@ -55,8 +57,7 @@ class PolicyImpl implements Policy {
         malloc.allocate<Pointer<Char>>(sizeOf<Pointer<Char>>());
     final status = bindings.VGetExpiration(ptr, expirationTimeStamp);
     _handleError(status);
-    return DateTime.tryParse(
-        expirationTimeStamp.value.cast<Utf8>().toDartString());
+    return DateTime.tryParse(expirationTimeStamp.toDartString());
   }
 
   @override
@@ -168,14 +169,7 @@ class PolicyImpl implements Policy {
 
   @override
   shareWithUsers(List<String> usersEmail) {
-    final usersPtrList =
-        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
-    final Pointer<Pointer<Char>> usersPtr =
-        calloc.allocate(usersPtrList.length);
-    for (int i = 0; i < usersPtrList.length; i++) {
-      usersPtr[i] = usersPtrList[i];
-    }
-    bindings.VShareWithUsers(ptr, usersPtr, usersPtrList.length);
+    bindings.VShareWithUsers(ptr, usersEmail.toNativeList(), usersEmail.length);
   }
 
   @override
@@ -185,24 +179,14 @@ class PolicyImpl implements Policy {
     final usersCount = malloc.allocate<UnsignedInt>(sizeOf<UnsignedInt>());
     final status = bindings.VGetSharedUsers(ptr, users, usersCount);
     _handleError(status);
-    final sharedUsers = List<String>.empty(growable: true);
-    for (int i = 0; i < usersCount.value; i++) {
-      sharedUsers.add(users.value[i].cast<Utf8>().toDartString());
-    }
+    final sharedUsers = users.toDartList(usersCount.value);
     calloc.free(users);
     return sharedUsers;
   }
 
   @override
   removeUsers(List<String> usersEmail) {
-    final usersPtrList =
-        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
-    final Pointer<Pointer<Char>> usersPtr =
-        calloc.allocate(usersPtrList.length);
-    for (int i = 0; i < usersPtrList.length; i++) {
-      usersPtr[i] = usersPtrList[i];
-    }
-    bindings.VRemoveUsers(ptr, usersPtr, usersPtrList.length);
+    bindings.VRemoveUsers(ptr, usersEmail.toNativeList(), usersEmail.length);
   }
 
   @override
@@ -219,5 +203,15 @@ class PolicyImpl implements Policy {
       case VSTATUS.VSTATUS_INVALID_PARAMS:
         throw NativeError(status, "Invalid params");
     }
+  }
+}
+
+extension DartConverter on Pointer<Pointer<Pointer<Char>>> {
+  List<String> toDartList(int length) {
+    final stringList = List<String>.empty(growable: true);
+    for (int i = 0; i < length; i++) {
+      stringList.add(value[i].toDartString());
+    }
+    return stringList;
   }
 }

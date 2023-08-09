@@ -25,8 +25,8 @@ class ClientImpl implements Client {
   }) =>
       ClientImpl._(
         bindings.VClientCreateWithAppId(
-          userId.toNativeUtf8().cast(),
-          appId.toNativeUtf8().cast(),
+          userId.toNativeString(),
+          appId.toNativeString(),
         ),
       );
 
@@ -38,10 +38,10 @@ class ClientImpl implements Client {
   }) =>
       ClientImpl._(
         bindings.VClientCreateWithOIDC(
-          owner.toNativeUtf8().cast(),
-          organizationName.toNativeUtf8().cast(),
-          clientId.toNativeUtf8().cast(),
-          clientSecret.toNativeUtf8().cast(),
+          owner.toNativeString(),
+          organizationName.toNativeString(),
+          clientId.toNativeString(),
+          clientSecret.toNativeString(),
         ),
       );
 

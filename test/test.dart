@@ -692,7 +692,7 @@ void main() {
       final expectedBytes = await inputFile.readAsBytes();
       expect(actualBytes, equals(expectedBytes));
 
-      client2.revokeFile(encryptedFile);
+      await client2.revokeFile(encryptedFile);
 
       final decryptFile =
           client1.decryptFile(encryptedFile, XFile(decryptedFilePath));

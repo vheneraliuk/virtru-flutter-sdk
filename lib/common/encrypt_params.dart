@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:ffi/ffi.dart';
+import 'package:virtru_sdk/common/client.dart';
 import 'package:virtru_sdk/common/policy.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
 import 'package:virtru_sdk/policy.dart';
@@ -14,7 +15,7 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 
   factory EncryptStringParamsImpl(String data) {
     return EncryptStringParamsImpl._(bindings.VEncryptStringParamsCreate(
-        data.toNativeUtf8().cast(), data.length));
+        data.toNativeString(), data.length));
   }
 
   EncryptStringParamsImpl._(this.ptr);
@@ -27,33 +28,24 @@ class EncryptStringParamsImpl implements EncryptStringParams {
 
   @override
   setDisplayName(String name) {
-    bindings.VEncryptStringParamsSetDisplayName(
-        ptr, name.toNativeUtf8().cast());
+    bindings.VEncryptStringParamsSetDisplayName(ptr, name.toNativeString());
   }
 
   @override
   setDisplayMessage(String message) {
     bindings.VEncryptStringParamsSetDisplayMessage(
-        ptr, message.toNativeUtf8().cast());
+        ptr, message.toNativeString());
   }
 
   @override
   setMimeType(String mimeType) {
-    bindings.VEncryptStringParamsSetMimeType(
-        ptr, mimeType.toNativeUtf8().cast());
+    bindings.VEncryptStringParamsSetMimeType(ptr, mimeType.toNativeString());
   }
 
   @override
   shareWithUsers(List<String> usersEmail) {
-    final usersPtrList =
-        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
-    final Pointer<Pointer<Char>> usersPtr =
-        calloc.allocate(usersPtrList.length);
-    for (int i = 0; i < usersPtrList.length; i++) {
-      usersPtr[i] = usersPtrList[i];
-    }
     bindings.VEncryptStringParamsShareWithUsers(
-        ptr, usersPtr, usersPtrList.length);
+        ptr, usersEmail.toNativeList(), usersEmail.length);
   }
 }
 
@@ -65,15 +57,15 @@ class EncryptFileParamsImpl
 
   factory EncryptFileParamsImpl.fileToFile(XFile inputFile, XFile outputFile) {
     return EncryptFileParamsImpl._(
-      bindings.VEncryptFileParamsCreate2(inputFile.path.toNativeUtf8().cast(),
-          outputFile.path.toNativeUtf8().cast()),
+      bindings.VEncryptFileParamsCreate2(
+          inputFile.path.toNativeString(), outputFile.path.toNativeString()),
       outputFile.path,
     );
   }
 
   factory EncryptFileParamsImpl.fileToRca(XFile inputFile) {
     return EncryptFileParamsImpl._(
-      bindings.VEncryptFileParamsCreate1(inputFile.path.toNativeUtf8().cast()),
+      bindings.VEncryptFileParamsCreate1(inputFile.path.toNativeString()),
       "",
     );
   }
@@ -88,31 +80,23 @@ class EncryptFileParamsImpl
 
   @override
   setDisplayName(String name) {
-    bindings.VEncryptFileParamsSetDisplayName(ptr, name.toNativeUtf8().cast());
+    bindings.VEncryptFileParamsSetDisplayName(ptr, name.toNativeString());
   }
 
   @override
   setDisplayMessage(String message) {
-    bindings.VEncryptFileParamsSetDisplayMessage(
-        ptr, message.toNativeUtf8().cast());
+    bindings.VEncryptFileParamsSetDisplayMessage(ptr, message.toNativeString());
   }
 
   @override
   setMimeType(String mimeType) {
-    bindings.VEncryptFileParamsSetMimeType(ptr, mimeType.toNativeUtf8().cast());
+    bindings.VEncryptFileParamsSetMimeType(ptr, mimeType.toNativeString());
   }
 
   @override
   shareWithUsers(List<String> usersEmail) {
-    final usersPtrList =
-        usersEmail.map((user) => user.toNativeUtf8().cast<Char>()).toList();
-    final Pointer<Pointer<Char>> usersPtr =
-        calloc.allocate(usersPtrList.length);
-    for (int i = 0; i < usersPtrList.length; i++) {
-      usersPtr[i] = usersPtrList[i];
-    }
     bindings.VEncryptFileParamsShareWithUsers(
-        ptr, usersPtr, usersPtrList.length);
+        ptr, usersEmail.toNativeList(), usersEmail.length);
   }
 
   @override
@@ -121,4 +105,16 @@ class EncryptFileParamsImpl
 
 extension on Policy {
   VPolicyPtr get ptr => (this as PolicyImpl).ptr;
+}
+
+extension NativeConverter on List<String> {
+  Pointer<Pointer<Char>> toNativeList() {
+    final nativePtrList = map((user) => user.toNativeString()).toList();
+    final Pointer<Pointer<Char>> nativePtr =
+        calloc.allocate(nativePtrList.length);
+    for (int i = 0; i < nativePtrList.length; i++) {
+      nativePtr[i] = nativePtrList[i];
+    }
+    return nativePtr;
+  }
 }
