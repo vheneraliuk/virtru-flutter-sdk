@@ -262,7 +262,7 @@ void main() {
       final persistentProtection = Random().nextBool();
       final watermark = Random().nextBool();
       final preventDownload = Random().nextBool();
-      final shareWith = [userId2, "example1@user.com", "example2@user.com"];
+      final shareWith = [userId2];
 
       final params = EncryptStringParams(testData)
         ..setPolicy(Policy()
@@ -281,36 +281,37 @@ void main() {
       final encryptedResult = await client1.encryptString(params);
       final policy = await client1.fetchPolicyById(encryptedResult.policyId);
 
-      final rOwner = policy.getOwner();
-      expect(rOwner, equals(userId1));
+      final actualOwner = policy.getOwner();
+      expect(actualOwner, equals(userId1));
 
-      final rExpiration = policy.getExpirationDate();
-      expect(rExpiration!.difference(expiration).inSeconds, equals(0));
+      final actualExpiration = policy.getExpirationDate();
+      expect(actualExpiration!.difference(expiration).inSeconds, equals(0));
 
-      final rCopyEnabled = policy.isCopyEnabled();
-      expect(rCopyEnabled, equals(copy));
+      final actualCopyEnabled = policy.isCopyEnabled();
+      expect(actualCopyEnabled, equals(copy));
 
-      final rPrintEnabled = policy.isPrintEnabled();
-      expect(rPrintEnabled, equals(print));
+      final actualPrintEnabled = policy.isPrintEnabled();
+      expect(actualPrintEnabled, equals(print));
 
-      final rReshareEnabled = policy.isReshareEnabled();
-      expect(rReshareEnabled, equals(reshare));
+      final actualReshareEnabled = policy.isReshareEnabled();
+      expect(actualReshareEnabled, equals(reshare));
 
-      final rPersistentProtectionEnabled =
+      final actualPersistentProtectionEnabled =
           policy.isPersistentProtectionEnabled();
-      expect(rPersistentProtectionEnabled, equals(persistentProtection));
+      expect(actualPersistentProtectionEnabled, equals(persistentProtection));
 
-      final rWatermarkEnabled = policy.isWatermarkEnabled();
-      expect(rWatermarkEnabled, equals(watermark));
+      final actualWatermarkEnabled = policy.isWatermarkEnabled();
+      expect(actualWatermarkEnabled, equals(watermark));
 
-      final rPreventDownloadEnabled = policy.isPreventDownloadEnabled();
-      expect(rPreventDownloadEnabled, equals(preventDownload));
+      final actualPreventDownloadEnabled = policy.isPreventDownloadEnabled();
+      expect(actualPreventDownloadEnabled, equals(preventDownload));
 
-      final rSharedUsers = policy.getSharedUsers();
+      final actualSharedUsers = policy.getSharedUsers();
       final expectedSharedUsers = List<String>.from(shareWith)..add(userId1);
-      expect(rSharedUsers, unorderedEquals(expectedSharedUsers));
+      expect(actualSharedUsers, unorderedEquals(expectedSharedUsers));
+
       policy.dispose();
-    }, skip: "Native crash sometimes. Need to investigate");
+    });
 
     test("TDF3 - Persistent Protection Enabled", () async {
       const testData = "TDF3 - Persistent Protection Enabled";
@@ -361,6 +362,63 @@ void main() {
       await expectLater(decryptString, throwsA(isA<NativeError>()));
     });
 
+    test("TDF3 - Prevent Download", () async {
+      const testData = "TDF3 - Prevent Download";
+      final encryptedResult = await client2.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayName("$testData.txt")
+          ..setDisplayMessage(_displayMessage(testData))
+          ..setMimeType(ContentType.text.mimeType)
+          ..setPolicy(
+            Policy()..setPreventDownloadEnabled(true),
+          ),
+      );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client2.fetchPolicyById(policyId);
+      final isPreventDownloadEnabled = policy.isPreventDownloadEnabled();
+      expect(isPreventDownloadEnabled, equals(true));
+      policy.dispose();
+
+      final tdf3String = encryptedResult.result;
+      final decryptString = client1.decryptString(tdf3String);
+      await expectLater(decryptString, throwsA(isA<NativeError>()));
+    });
+
+    test("TDF3 - Copy, Print, Reshare", () async {
+      const testData = "TDF3 - Copy, Print, Reshare";
+      final copy = Random().nextBool();
+      final print = Random().nextBool();
+      final reshare = Random().nextBool();
+      final encryptedResult = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayName("$testData.txt")
+          ..setDisplayMessage(_displayMessage(testData))
+          ..setMimeType(ContentType.text.mimeType)
+          ..setPolicy(
+            Policy()
+              ..setCopyEnabled(copy)
+              ..setPrintEnabled(print)
+              ..setReshareEnabled(reshare),
+          ),
+      );
+
+      final policyId = encryptedResult.policyId;
+      final policy = await client1.fetchPolicyById(policyId);
+      final isCopyEnabled = policy.isCopyEnabled();
+      expect(isCopyEnabled, equals(copy));
+
+      final isPrintEnabled = policy.isPrintEnabled();
+      expect(isPrintEnabled, equals(print));
+
+      final isReshareEnabled = policy.isReshareEnabled();
+      expect(isReshareEnabled, equals(reshare));
+
+      policy.dispose();
+    });
+
     test("TDF3 - Set Expiration", () async {
       const testData = "TDF3 - Set Expiration";
       final encryptedResult = await client1.encryptString(
@@ -385,6 +443,68 @@ void main() {
       final decryptString = client2.decryptString(tdf3String);
       await expectLater(decryptString, throwsA(isA<NativeError>()));
     }, timeout: const Timeout.factor(2));
+
+    test("TDF3 - Set Expiration In Days", () async {
+      const testData = "TDF3 - Set Expiration In Days";
+      final expirationDays = Random().nextInt(100);
+      final encryptedResult = await client2.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId1])
+          ..setDisplayName("$testData.txt")
+          ..setDisplayMessage(_displayMessage(testData))
+          ..setMimeType(ContentType.text.mimeType)
+          ..setPolicy(
+            Policy()..setExpirationInDays(expirationDays),
+          ),
+      );
+      final policy = await client2.fetchPolicyById(encryptedResult.policyId);
+      final expirationDate = policy.getExpirationDate();
+      final expectedExpirationDate =
+          DateTime.now().add(Duration(days: expirationDays));
+      expect(expirationDate!.difference(expectedExpirationDate).inMinutes,
+          equals(0));
+      policy.dispose();
+    });
+
+    test("TDF3 - Set Expiration In Minutes", () async {
+      const testData = "TDF3 - Set Expiration In Minutes";
+      final expirationMinutes = Random().nextInt(1000);
+      final encryptedResult = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers([userId2])
+          ..setDisplayName("$testData.txt")
+          ..setDisplayMessage(_displayMessage(testData))
+          ..setMimeType(ContentType.text.mimeType)
+          ..setPolicy(
+            Policy()..setExpirationInMinutes(expirationMinutes),
+          ),
+      );
+      final policy = await client1.fetchPolicyById(encryptedResult.policyId);
+      final expirationDate = policy.getExpirationDate();
+      final expectedExpirationDate =
+          DateTime.now().add(Duration(minutes: expirationMinutes));
+      expect(expirationDate!.difference(expectedExpirationDate).inMinutes,
+          equals(0));
+      policy.dispose();
+    });
+
+    test("TDF3 - Share With", () async {
+      const testData = "TDF3 - Share With";
+      final shareWith = [userId2];
+      final encryptedResult = await client1.encryptString(
+        EncryptStringParams(testData)
+          ..shareWithUsers(shareWith)
+          ..setDisplayName("$testData.txt")
+          ..setMimeType(ContentType.text.mimeType)
+          ..setDisplayMessage(_displayMessage(testData)),
+      );
+
+      final policy = await client1.fetchPolicyById(encryptedResult.policyId);
+      final sharedWith = policy.getSharedUsers();
+      final expectedSharedUsers = List<String>.from(shareWith)..add(userId1);
+      expect(sharedWith, unorderedEquals(expectedSharedUsers));
+      policy.dispose();
+    });
 
     test("TDF3 - Remove Users", () async {
       const testData = "TDF3 - Remove users";
@@ -627,8 +747,7 @@ void main() {
       final encryptedFile = encryptedResult.result;
       final extractedDir = Directory("encryptedFile");
       await extractFileToDisk(encryptedFile.path, extractedDir.path);
-      final filesInDir =
-          extractedDir.listSync().map((e) => XFile(e.path).name);
+      final filesInDir = extractedDir.listSync().map((e) => XFile(e.path).name);
       expect(filesInDir, unorderedEquals(["0.manifest.json", "0.payload"]));
       const decryptedFilePath = "test_data/sensitive_decrypted.txt";
       final decryptedFile =
