@@ -4,7 +4,9 @@ import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk/common/client.dart'
     if (dart.library.html) 'package:virtru_sdk/web/client.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
-import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/entity/metadata.dart';
+import 'package:virtru_sdk/entity/native_error.dart';
+import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 
 abstract class Client {
@@ -94,6 +96,30 @@ abstract class Client {
 
   /// Revoke access for all the share users of the [tdfFile].
   Future<void> revokeFile(XFile tdfFile);
+
+  /// Generate a secure share link for the given [metadataObjects] and [shareWith] users.
+  /// The [securitySettings] is the optional security settings for the secure share.
+  /// The [openMessage] is the optional open message to be sent to the share users.
+  /// The [encryptedMessage] is the optional encrypted message to be sent to the share users.
+  Future<String> generateSecureShareLink(
+    List<SecureShareMetadata> metadataObjects,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String openMessage = '',
+    String encryptedMessage = '',
+  });
+
+  /// Securely share the given [files] with the [shareWith] users.
+  /// The [securitySettings] is the optional security settings for the secure share.
+  /// The [openMessage] is the optional open message to be sent to the share users.
+  /// The [encryptedMessage] is the optional encrypted message to be sent to the share users.
+  Future<String> secureShareData(
+    List<XFile> files,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String openMessage = '',
+    String encryptedMessage = '',
+  });
 
   /// Set the offline mode.
   /// If [enabled], all the TDFs will be encrypted in offline mode that means the symmetric key

@@ -1,6 +1,8 @@
 import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk/client.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
+import 'package:virtru_sdk/entity/metadata.dart';
+import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 
 class ClientImpl implements Client {
@@ -113,6 +115,30 @@ class ClientImpl implements Client {
   @override
   Future<void> updatePolicyForId(Policy policy, String uuid) {
     // TODO: implement updatePolicyForId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> generateSecureShareLink(
+    List<SecureShareMetadata> metadataObjects,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String openMessage = '',
+    String encryptedMessage = '',
+  }) {
+    // TODO: implement generateSecureShareLink
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> secureShareData(
+    List<XFile> files,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String openMessage = '',
+    String encryptedMessage = '',
+  }) {
+    // TODO: implement secureShareData
     throw UnimplementedError();
   }
 

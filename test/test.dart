@@ -53,6 +53,28 @@ void main() {
     client.dispose();
   });
 
+  group("Secure Share:", () {
+    setUp(initAppIdClients);
+    tearDown(disposeAppIdClients);
+
+    test("Create Link", () async {
+      final file1 = XFile('test_data/flutter.png');
+      final file2 = XFile('test_data/sensitive.txt');
+      final result = await client1.secureShareData(
+        [file1, file2],
+        [userId2],
+        securitySettings: SecuritySettings(
+          isPersistentProtected: true,
+          isWatermarkEnabled: true,
+          expirationDate: DateTime.now().add(const Duration(days: 10)),
+        ),
+        openMessage: "Flutter SDK unit testing",
+        encryptedMessage: "Create Secure Share Link Test",
+      );
+      expect(result, isNotEmpty);
+    });
+  });
+
   group("Encrypt/Decrypt Strings:", () {
     setUp(initAppIdClients);
     tearDown(disposeAppIdClients);

@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk/common/client.dart';
 import 'package:virtru_sdk/common/encrypt_params.dart';
-import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/entity/native_error.dart';
 import 'package:virtru_sdk/policy.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings_generated.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings.dart';

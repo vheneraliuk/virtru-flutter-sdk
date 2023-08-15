@@ -1,15 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:cross_file/cross_file.dart';
+import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
 import 'package:virtru_sdk/client.dart';
+import 'package:virtru_sdk/common/api/acm_client.dart';
 import 'package:virtru_sdk/common/encrypt_params.dart';
 import 'package:virtru_sdk/common/policy.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
-import 'package:virtru_sdk/native_error.dart';
+import 'package:virtru_sdk/entity/metadata.dart';
+import 'package:virtru_sdk/entity/native_error.dart';
+import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings_generated.dart';
@@ -18,6 +23,8 @@ part 'client_helper.dart';
 
 class ClientImpl implements Client {
   final VClientPtr _clientPtr;
+  final String _owner;
+  final String _appId;
 
   factory ClientImpl.withAppId({
     required String userId,
@@ -28,6 +35,8 @@ class ClientImpl implements Client {
           userId.toNativeString(),
           appId.toNativeString(),
         ),
+        userId,
+        appId,
       );
 
   factory ClientImpl.withOIDC({
@@ -43,9 +52,11 @@ class ClientImpl implements Client {
           clientId.toNativeString(),
           clientSecret.toNativeString(),
         ),
+        owner,
+        "",
       );
 
-  ClientImpl._(this._clientPtr);
+  ClientImpl._(this._clientPtr, this._owner, this._appId);
 
   @override
   int setConsoleLoggingLevel(LogLevel level) {
@@ -160,6 +171,104 @@ class ClientImpl implements Client {
   }
 
   @override
+  Future<String> generateSecureShareLink(
+    List<SecureShareMetadata> metadataObjects,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String encryptedMessage = '',
+    String openMessage = '',
+  }) async {
+    if (_appId.isEmpty) {
+      throw NativeError(1, 'Secure Share is not supported for OIDC users yet.');
+    }
+    final filesMetadata = Map<String, dynamic>.fromEntries(
+      metadataObjects.map((object) => MapEntry(
+            object.policyId,
+            {
+              'name': object.name,
+              'size': object.size,
+              'rcaLink': object.rcaLink,
+            },
+          )),
+    );
+    final childrenPolicyIds = metadataObjects.map((e) => e.policyId).toList();
+    final metadata = {
+      'files': filesMetadata,
+      'filesOwner': _owner,
+      'messages': {
+        'encrypted': encryptedMessage,
+        'opening': openMessage,
+      },
+    };
+    final apiClient = AcmClient(_owner, _appId);
+    final createResult = await apiClient.createCollectionPolicy(
+      childrenPolicyIds,
+      shareWith,
+      expirationDate: securitySettings?.expirationDate,
+    );
+    final metadataJson = jsonEncode(metadata);
+    final (encryptedMetadata, secretKey) = await _encryptMetadata(metadataJson);
+    await apiClient.uploadMetadata(
+        createResult.metadataUploadUrl, base64Encode(encryptedMetadata));
+
+    final urlEncodedMetadataKey = Uri.encodeComponent(base64Encode(secretKey));
+
+    await apiClient.sendEmailsOnFilesSharing(
+      createResult.uuid,
+      shareWith,
+      metadataObjects.map((e) => e.name).toList(),
+      urlEncodedMetadataKey,
+      openMessage: openMessage,
+    );
+
+    return 'https://secure.virtru.com/secure-share/shared/$_owner/${createResult.uuid}#ek=$urlEncodedMetadataKey';
+  }
+
+  @override
+  Future<String> secureShareData(
+    List<XFile> files,
+    List<String> shareWith, {
+    SecuritySettings? securitySettings,
+    String openMessage = '',
+    String encryptedMessage = '',
+  }) async {
+    if (_appId.isEmpty) {
+      throw NativeError(1, 'Secure Share is not supported for OIDC users yet.');
+    }
+
+    final filesMetadata = <SecureShareMetadata>[];
+    for (var file in files) {
+      final encryptResult = await encryptFileToRCA(
+        EncryptFileToRcaParams(file)
+          ..setDisplayName(file.name)
+          ..setPolicy(
+            Policy()
+              ..setPersistentProtectionEnabled(
+                securitySettings?.isPersistentProtected ?? false,
+              )
+              ..setWatermarkEnabled(
+                securitySettings?.isWatermarkEnabled ?? false,
+              ),
+          ),
+      );
+      final fileSize = await file.length();
+      filesMetadata.add(SecureShareMetadata(
+        policyId: encryptResult.policyId,
+        name: file.name,
+        size: fileSize,
+        rcaLink: encryptResult.result,
+      ));
+    }
+    return generateSecureShareLink(
+      filesMetadata,
+      shareWith,
+      securitySettings: securitySettings,
+      openMessage: openMessage,
+      encryptedMessage: encryptedMessage,
+    );
+  }
+
+  @override
   dispose() {
     bindings.VClientDestroy(_clientPtr);
   }
@@ -167,6 +276,14 @@ class ClientImpl implements Client {
   void _disposePolicy(VPolicyPtr? policyPtr) {
     if (policyPtr == null) return;
     bindings.VPolicyDestroy(policyPtr);
+  }
+
+  _encryptMetadata(String metadataJson) async {
+    final cipher = FlutterAesGcm.with256bits();
+    final secretKey = await cipher.newSecretKey();
+    final encryptedData =
+        await cipher.encryptString(metadataJson, secretKey: secretKey);
+    return (encryptedData.concatenation(), await secretKey.extractBytes());
   }
 }
 

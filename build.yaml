@@ -1,0 +1,10 @@
+# Run with `dart run build_runner build --delete-conflicting-outputs`.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        generate_for:
+          include: [ "lib/**" ]
+      retrofit_generator:
+        generate_for:
+          include: [ "lib/**" ]
