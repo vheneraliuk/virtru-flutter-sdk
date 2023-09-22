@@ -79,6 +79,12 @@ typedef enum  {
 // Virtru client opaque object.
 typedef void* VClientPtr;
 
+// Virtru OIDC client opaque object
+typedef void* VClientOidcPtr;
+
+// Virtru storage type opaque object
+typedef void* VTDFStorageTypePtr;
+
 // Encrypt file params opaque object.
 typedef void* VEncryptFileParamsPtr;
 

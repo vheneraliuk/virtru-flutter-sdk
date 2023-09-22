@@ -27,6 +27,492 @@ class VirtruSdkFlutterBindings {
           lookup)
       : _lookup = lookup;
 
+  /// Hack to allow .NET P/Invoke to free native memory for a random pointer
+  /// \param vMemoryPtr - The malloc'd memory to be freed.
+  int TDFFreeMemory(
+    ffi.Pointer<ffi.Void> memoryPtr,
+  ) {
+    return _TDFFreeMemory(
+      memoryPtr,
+    );
+  }
+
+  late final _TDFFreeMemoryPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Void>)>>(
+          'TDFFreeMemory');
+  late final _TDFFreeMemory =
+      _TDFFreeMemoryPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+
+  /// Destruct a credentials instance created with TDFCreateCredentialXXX
+  void TDFDestroyCredential(
+    TDFCredsPtr creds,
+  ) {
+    return _TDFDestroyCredential(
+      creds,
+    );
+  }
+
+  late final _TDFDestroyCredentialPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(TDFCredsPtr)>>(
+          'TDFDestroyCredential');
+  late final _TDFDestroyCredential =
+      _TDFDestroyCredentialPtr.asFunction<void Function(TDFCredsPtr)>();
+
+  /// Create a new Credential instance configured for PKI authentication.
+  /// \param oidcEndpoint - The OIDC server url
+  /// \param clientId - The client id
+  /// \param clientKeyFileName - The name of the file containing the client key
+  /// \param clientCertFileName - The name of the file containing the client certificate
+  /// \param certificateAuthority - The certificate authority to be used
+  /// \param organizationName - The OIDC realm or organization the client belongs to
+  TDFCredsPtr TDFCreateCredentialPKI(
+    ffi.Pointer<ffi.Char> oidcEndpoint,
+    ffi.Pointer<ffi.Char> clientId,
+    ffi.Pointer<ffi.Char> clientKeyFileName,
+    ffi.Pointer<ffi.Char> clientCertFileName,
+    ffi.Pointer<ffi.Char> sdkConsumerCertAuthority,
+    ffi.Pointer<ffi.Char> organizationName,
+  ) {
+    return _TDFCreateCredentialPKI(
+      oidcEndpoint,
+      clientId,
+      clientKeyFileName,
+      clientCertFileName,
+      sdkConsumerCertAuthority,
+      organizationName,
+    );
+  }
+
+  late final _TDFCreateCredentialPKIPtr = _lookup<
+      ffi.NativeFunction<
+          TDFCredsPtr Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('TDFCreateCredentialPKI');
+  late final _TDFCreateCredentialPKI = _TDFCreateCredentialPKIPtr.asFunction<
+      TDFCredsPtr Function(
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  /// Create a new Credential instance configured for Client Credential authentication.
+  /// \param oidcEndpoint - The OIDC server url
+  /// \param clientId - The client id
+  /// \param clientSecret - The client secret
+  /// \param organizationName - The OIDC realm or organization the client belongs to
+  TDFCredsPtr TDFCreateCredentialClientCreds(
+    ffi.Pointer<ffi.Char> oidcEndpoint,
+    ffi.Pointer<ffi.Char> clientId,
+    ffi.Pointer<ffi.Char> clientSecret,
+    ffi.Pointer<ffi.Char> organizationName,
+  ) {
+    return _TDFCreateCredentialClientCreds(
+      oidcEndpoint,
+      clientId,
+      clientSecret,
+      organizationName,
+    );
+  }
+
+  late final _TDFCreateCredentialClientCredsPtr = _lookup<
+      ffi.NativeFunction<
+          TDFCredsPtr Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('TDFCreateCredentialClientCreds');
+  late final _TDFCreateCredentialClientCreds =
+      _TDFCreateCredentialClientCredsPtr.asFunction<
+          TDFCredsPtr Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  /// Create a new Credential instance configured for Client Credential authentication.
+  /// \param oidcEndpoint - The OIDC server url
+  /// \param clientId - The client id
+  /// \param clientSecret - The client secret
+  /// \param externalExchangeToken - An external token from the to be exchanged during auth via OIDC Token Exchange
+  /// \param organizationName - The OIDC realm or organization the client belongs to
+  TDFCredsPtr TDFCreateCredentialTokenExchange(
+    ffi.Pointer<ffi.Char> oidcEndpoint,
+    ffi.Pointer<ffi.Char> clientId,
+    ffi.Pointer<ffi.Char> clientSecret,
+    ffi.Pointer<ffi.Char> externalExchangeToken,
+    ffi.Pointer<ffi.Char> organizationName,
+  ) {
+    return _TDFCreateCredentialTokenExchange(
+      oidcEndpoint,
+      clientId,
+      clientSecret,
+      externalExchangeToken,
+      organizationName,
+    );
+  }
+
+  late final _TDFCreateCredentialTokenExchangePtr = _lookup<
+      ffi.NativeFunction<
+          TDFCredsPtr Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('TDFCreateCredentialTokenExchange');
+  late final _TDFCreateCredentialTokenExchange =
+      _TDFCreateCredentialTokenExchangePtr.asFunction<
+          TDFCredsPtr Function(
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>();
+
+  /// Create a new TDF client using provided credentials object
+  /// \param credsPtr - Creds object created by calling TDFCreateCredentialXXX
+  /// \param kasURL - URL of a key access service
+  /// NOTE: On failure returns NULL ptr.
+  TDFClientPtr TDFCreateClient(
+    TDFCredsPtr credsPtr,
+    ffi.Pointer<ffi.Char> kasUrl,
+  ) {
+    return _TDFCreateClient(
+      credsPtr,
+      kasUrl,
+    );
+  }
+
+  late final _TDFCreateClientPtr = _lookup<
+      ffi.NativeFunction<
+          TDFClientPtr Function(
+              TDFCredsPtr, ffi.Pointer<ffi.Char>)>>('TDFCreateClient');
+  late final _TDFCreateClient = _TDFCreateClientPtr.asFunction<
+      TDFClientPtr Function(TDFCredsPtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Destruct the Virtru client instance.
+  /// \param clientPtr - The pointer to Virtru client opaque object.
+  void TDFDestroyClient(
+    TDFClientPtr clientPtr,
+  ) {
+    return _TDFDestroyClient(
+      clientPtr,
+    );
+  }
+
+  late final _TDFDestroyClientPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(TDFClientPtr)>>(
+          'TDFDestroyClient');
+  late final _TDFDestroyClient =
+      _TDFDestroyClientPtr.asFunction<void Function(TDFClientPtr)>();
+
+  /// Add a data attribute in URL format to the data being encrypted
+  /// \param dataAttribute - Attribute string in format: "https://example.com/attr/Classification/value/Alpha"
+  /// \param kasURL - URL of a key access service TODO currently ignored
+  int TDFAddDataAttribute(
+    TDFClientPtr clientPtr,
+    ffi.Pointer<ffi.Char> dataAttribute,
+    ffi.Pointer<ffi.Char> kasUrl,
+  ) {
+    return _TDFAddDataAttribute(
+      clientPtr,
+      dataAttribute,
+      kasUrl,
+    );
+  }
+
+  late final _TDFAddDataAttributePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(TDFClientPtr, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('TDFAddDataAttribute');
+  late final _TDFAddDataAttribute = _TDFAddDataAttributePtr.asFunction<
+      int Function(
+          TDFClientPtr, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  /// Enable the internal logger class to write logs to the console for given LogLevel.
+  /// The default logLevel is 'Warn'
+  int TDFEnableConsoleLogging(
+    TDFClientPtr clientPtr,
+    int logLevel,
+  ) {
+    return _TDFEnableConsoleLogging(
+      clientPtr,
+      logLevel,
+    );
+  }
+
+  late final _TDFEnableConsoleLoggingPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(TDFClientPtr, ffi.Int32)>>(
+          'TDFEnableConsoleLogging');
+  late final _TDFEnableConsoleLogging =
+      _TDFEnableConsoleLoggingPtr.asFunction<int Function(TDFClientPtr, int)>();
+
+  /// Encrypt the contents of the input file into a TDF. In the process of encryption, a policy is
+  /// associated with the TDF. The policy has a unique id which can be used to identify the TDF policy.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outFilepath - The file path for tdf after successful encryption
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  int TDFEncryptFile(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<ffi.Char> outFilepath,
+  ) {
+    return _TDFEncryptFile(
+      clientPtr,
+      storageTypePtr,
+      outFilepath,
+    );
+  }
+
+  late final _TDFEncryptFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(TDFClientPtr, TDFStorageTypePtr,
+              ffi.Pointer<ffi.Char>)>>('TDFEncryptFile');
+  late final _TDFEncryptFile = _TDFEncryptFilePtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Decrypt the contents of the TDF file into its original content.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outFilepath - The file path of the original content after successful decryption
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  int TDFDecryptFile(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<ffi.Char> outFilepath,
+  ) {
+    return _TDFDecryptFile(
+      clientPtr,
+      storageTypePtr,
+      outFilepath,
+    );
+  }
+
+  late final _TDFDecryptFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(TDFClientPtr, TDFStorageTypePtr,
+              ffi.Pointer<ffi.Char>)>>('TDFDecryptFile');
+  late final _TDFDecryptFile = _TDFDecryptFilePtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Encrypt the plain data into a TDF. In the process of encryption, a policy is
+  /// associated with the TDF. The policy has a unique id which can be used to identify the TDF policy.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outBytesPtr  - On success, it contains the encrypted tdf data.
+  /// \param outBytesLength  - On success, it is length of the encrypted tdf data.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  /// NOTE: The caller of the api should free outBytesPtr.
+  int TDFEncryptString(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<TDFBytesPtr> outBytesPtr,
+    ffi.Pointer<TDFBytesLength> outBytesLength,
+  ) {
+    return _TDFEncryptString(
+      clientPtr,
+      storageTypePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _TDFEncryptStringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              TDFClientPtr,
+              TDFStorageTypePtr,
+              ffi.Pointer<TDFBytesPtr>,
+              ffi.Pointer<TDFBytesLength>)>>('TDFEncryptString');
+  late final _TDFEncryptString = _TDFEncryptStringPtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<TDFBytesPtr>,
+          ffi.Pointer<TDFBytesLength>)>();
+
+  /// Gets the JSON policy (as string) of a string-encoded TDF payload
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outBytesPtr  - On success, it contains the TDF policy as a JSON-encoded string.
+  /// \param outBytesLength  - On success, it is length of the policy string.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  /// NOTE: The caller of the api should free outBytesPtr.
+  int TDFGetPolicy(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<TDFBytesPtr> outBytesPtr,
+    ffi.Pointer<TDFBytesLength> outBytesLength,
+  ) {
+    return _TDFGetPolicy(
+      clientPtr,
+      storageTypePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _TDFGetPolicyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              TDFClientPtr,
+              TDFStorageTypePtr,
+              ffi.Pointer<TDFBytesPtr>,
+              ffi.Pointer<TDFBytesLength>)>>('TDFGetPolicy');
+  late final _TDFGetPolicy = _TDFGetPolicyPtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<TDFBytesPtr>,
+          ffi.Pointer<TDFBytesLength>)>();
+
+  /// Decrypt the TDF data
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outBytesPtr  - On success, it contains the decrypted tdf data.
+  /// \param outBytesLength  - On success, it is length of the decrypted tdf data.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  /// NOTE: The caller of the api should free outBytesPtr.
+  int TDFDecryptString(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<TDFBytesPtr> outBytesPtr,
+    ffi.Pointer<TDFBytesLength> outBytesLength,
+  ) {
+    return _TDFDecryptString(
+      clientPtr,
+      storageTypePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _TDFDecryptStringPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              TDFClientPtr,
+              TDFStorageTypePtr,
+              ffi.Pointer<TDFBytesPtr>,
+              ffi.Pointer<TDFBytesLength>)>>('TDFDecryptString');
+  late final _TDFDecryptString = _TDFDecryptStringPtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<TDFBytesPtr>,
+          ffi.Pointer<TDFBytesLength>)>();
+
+  /// \param clientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param offset - The offset within the plaintext to return
+  /// \param length - The length of the plaintext to return
+  /// \param outBytesPtr  - On success, it contains the meta data string.
+  /// \param outBytesLength  - On success, it is length of the meta data string.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  /// NOTE: The caller of the api should free outBytesPtr.
+  int TDFDecryptDataPartial(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    int offset,
+    int length,
+    ffi.Pointer<TDFBytesPtr> outBytesPtr,
+    ffi.Pointer<TDFBytesLength> outBytesLength,
+  ) {
+    return _TDFDecryptDataPartial(
+      clientPtr,
+      storageTypePtr,
+      offset,
+      length,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _TDFDecryptDataPartialPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              TDFClientPtr,
+              TDFStorageTypePtr,
+              TDFBytesLength,
+              TDFBytesLength,
+              ffi.Pointer<TDFBytesPtr>,
+              ffi.Pointer<TDFBytesLength>)>>('TDFDecryptDataPartial');
+  late final _TDFDecryptDataPartial = _TDFDecryptDataPartialPtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, int, int,
+          ffi.Pointer<TDFBytesPtr>, ffi.Pointer<TDFBytesLength>)>();
+
+  /// Assign the metadata that will be encrypted and stored in
+  /// the TDF, separately from the data.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param inBytesPtr  - Pointer to buffer containing the meta data.
+  /// \param inBytesLength  - Length of buffer containing the meta data.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  int TDFSetEncryptedMetadata(
+    TDFClientPtr clientPtr,
+    TDFCBytesPtr inBytesPtr,
+    int inBytesLength,
+  ) {
+    return _TDFSetEncryptedMetadata(
+      clientPtr,
+      inBytesPtr,
+      inBytesLength,
+    );
+  }
+
+  late final _TDFSetEncryptedMetadataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(TDFClientPtr, TDFCBytesPtr,
+              TDFBytesLength)>>('TDFSetEncryptedMetadata');
+  late final _TDFSetEncryptedMetadata = _TDFSetEncryptedMetadataPtr.asFunction<
+      int Function(TDFClientPtr, TDFCBytesPtr, int)>();
+
+  /// Decrypt and return TDF metadata as a string. If the TDF content has
+  /// no encrypted metadata, will return an empty string.
+  /// \param clientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageType - The type of the tdf.
+  /// \param outBytesPtr  - On success, it contains the meta data string.
+  /// \param outBytesLength  - On success, it is length of the meta data string.
+  /// \return TDF_STATUS - VSTATUS_SUCCESS on success
+  /// NOTE: The caller of the api should free outBytesPtr.
+  int TDFGetEncryptedMetadata(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+    ffi.Pointer<TDFBytesPtr> outBytesPtr,
+    ffi.Pointer<TDFBytesLength> outBytesLength,
+  ) {
+    return _TDFGetEncryptedMetadata(
+      clientPtr,
+      storageTypePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _TDFGetEncryptedMetadataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              TDFClientPtr,
+              TDFStorageTypePtr,
+              ffi.Pointer<TDFBytesPtr>,
+              ffi.Pointer<TDFBytesLength>)>>('TDFGetEncryptedMetadata');
+  late final _TDFGetEncryptedMetadata = _TDFGetEncryptedMetadataPtr.asFunction<
+      int Function(TDFClientPtr, TDFStorageTypePtr, ffi.Pointer<TDFBytesPtr>,
+          ffi.Pointer<TDFBytesLength>)>();
+
+  /// Parse the data pointed to by the storage type, to determine if it is
+  /// a potentially decryptable TDF or not.
+  /// \param clientPtr - The pointer to Virtru client opaque object.
+  /// \param tdfStorageTypePtr - Pointer to TDF storage type
+  int TDFIsTDF(
+    TDFClientPtr clientPtr,
+    TDFStorageTypePtr storageTypePtr,
+  ) {
+    return _TDFIsTDF(
+      clientPtr,
+      storageTypePtr,
+    );
+  }
+
+  late final _TDFIsTDFPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Int Function(TDFClientPtr, TDFStorageTypePtr)>>(
+      'TDFIsTDF');
+  late final _TDFIsTDF =
+      _TDFIsTDFPtr.asFunction<int Function(TDFClientPtr, TDFStorageTypePtr)>();
+
   /// Allows for .NET P/Invoke to free native memory
   /// \param vMemoryPtr - The malloc'd memory to be freed.
   int VFreeMemory(
@@ -862,6 +1348,127 @@ class VirtruSdkFlutterBindings {
           int Function(VEncryptFileParamsPtr,
               ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
 
+  ffi.Pointer<ConfigService> VConfigServiceCreate(
+    ffi.Pointer<ffi.Char> configUrl,
+  ) {
+    return _VConfigServiceCreate(
+      configUrl,
+    );
+  }
+
+  late final _VConfigServiceCreatePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ConfigService> Function(
+              ffi.Pointer<ffi.Char>)>>('VConfigServiceCreate');
+  late final _VConfigServiceCreate = _VConfigServiceCreatePtr.asFunction<
+      ffi.Pointer<ConfigService> Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Destructor
+  void VConfigServiceDestroy(
+    ffi.Pointer<ConfigService> configService,
+  ) {
+    return _VConfigServiceDestroy(
+      configService,
+    );
+  }
+
+  late final _VConfigServiceDestroyPtr = _lookup<
+          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ConfigService>)>>(
+      'VConfigServiceDestroy');
+  late final _VConfigServiceDestroy = _VConfigServiceDestroyPtr.asFunction<
+      void Function(ffi.Pointer<ConfigService>)>();
+
+  /// Get the config from Config Service
+  /// \param configKey - compound key of the configuration to get
+  /// \param outputFilePath - path to the file to save the output
+  int VGetConfig(
+    ffi.Pointer<ConfigService> configService,
+    ffi.Pointer<ffi.Char> configKey,
+    ffi.Pointer<ffi.Char> outputFilePath,
+  ) {
+    return _VGetConfig(
+      configService,
+      configKey,
+      outputFilePath,
+    );
+  }
+
+  late final _VGetConfigPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VGetConfig');
+  late final _VGetConfig = _VGetConfigPtr.asFunction<
+      int Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  /// Create the Config Service entry
+  /// \param configKey - compound key of the configuration to post
+  /// \param inputFilePath - path to the file to read the config from
+  int VCreateConfig(
+    ffi.Pointer<ConfigService> configService,
+    ffi.Pointer<ffi.Char> configKey,
+    ffi.Pointer<ffi.Char> inputFilePath,
+  ) {
+    return _VCreateConfig(
+      configService,
+      configKey,
+      inputFilePath,
+    );
+  }
+
+  late final _VCreateConfigPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VCreateConfig');
+  late final _VCreateConfig = _VCreateConfigPtr.asFunction<
+      int Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  /// Returns Configuration Metadata for a given key.
+  /// \param configKey - compound key of the configuration to post
+  /// \param inputFilePath - path to the file to read the config
+  /// \return - Last-Modified Header value
+  ffi.Pointer<ffi.Char> VGetConfigMetaData(
+    ffi.Pointer<ConfigService> configService,
+    ffi.Pointer<ffi.Char> configKey,
+  ) {
+    return _VGetConfigMetaData(
+      configService,
+      configKey,
+    );
+  }
+
+  late final _VGetConfigMetaDataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ConfigService>,
+              ffi.Pointer<ffi.Char>)>>('VGetConfigMetaData');
+  late final _VGetConfigMetaData = _VGetConfigMetaDataPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(
+          ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>)>();
+
+  /// Add additional header
+  /// \param key - name of the Header, e.g. Connection
+  /// \param value - value of the Header, e.g. keep-alive
+  void VAddHeader(
+    ffi.Pointer<ConfigService> configService,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _VAddHeader(
+      configService,
+      key,
+      value,
+    );
+  }
+
+  late final _VAddHeaderPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VAddHeader');
+  late final _VAddHeader = _VAddHeaderPtr.asFunction<
+      void Function(ffi.Pointer<ConfigService>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
   /// Create a new encrypt string param opaque object.
   /// \param vBytesPtr - Const pointer to the data buffer.
   /// \param vBytesLength - The file on which the encryption is performed
@@ -1018,6 +1625,303 @@ class VirtruSdkFlutterBindings {
       _VEncryptStringParamsShareWithUsersPtr.asFunction<
           int Function(VEncryptStringParamsPtr,
               ffi.Pointer<ffi.Pointer<ffi.Char>>, int)>();
+
+  /// Constructor
+  /// \param auditUrl - https-prefixed URL where Audit Service is hosted
+  ffi.Pointer<AuditService> VAuditServiceCreate(
+    ffi.Pointer<ffi.Char> auditUrl,
+  ) {
+    return _VAuditServiceCreate(
+      auditUrl,
+    );
+  }
+
+  late final _VAuditServiceCreatePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<AuditService> Function(
+              ffi.Pointer<ffi.Char>)>>('VAuditServiceCreate');
+  late final _VAuditServiceCreate = _VAuditServiceCreatePtr.asFunction<
+      ffi.Pointer<AuditService> Function(ffi.Pointer<ffi.Char>)>();
+
+  /// Destructor
+  void VAuditServiceDestroy(
+    ffi.Pointer<AuditService> auditService,
+  ) {
+    return _VAuditServiceDestroy(
+      auditService,
+    );
+  }
+
+  late final _VAuditServiceDestroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<AuditService>)>>(
+          'VAuditServiceDestroy');
+  late final _VAuditServiceDestroy = _VAuditServiceDestroyPtr.asFunction<
+      void Function(ffi.Pointer<AuditService>)>();
+
+  /// Get all Audit Events
+  /// \return - All audit events as JSON
+  ffi.Pointer<ffi.Char> VGetEvents(
+    ffi.Pointer<AuditService> auditService,
+  ) {
+    return _VGetEvents(
+      auditService,
+    );
+  }
+
+  late final _VGetEventsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<AuditService>)>>('VGetEvents');
+  late final _VGetEvents = _VGetEventsPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<AuditService>)>();
+
+  /// Get an event which matches the provided event id.
+  /// \param eventId - Event Id
+  /// \return - JSON
+  ffi.Pointer<ffi.Char> VGetEventById(
+    ffi.Pointer<AuditService> auditService,
+    ffi.Pointer<ffi.Char> eventId,
+  ) {
+    return _VGetEventById(
+      auditService,
+      eventId,
+    );
+  }
+
+  late final _VGetEventByIdPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<AuditService>,
+              ffi.Pointer<ffi.Char>)>>('VGetEventById');
+  late final _VGetEventById = _VGetEventByIdPtr.asFunction<
+      ffi.Pointer<ffi.Char> Function(
+          ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>)>();
+
+  /// Create the Audit Service entry
+  /// \param auditData - Audit Event Data
+  int VWriteAuditEvent(
+    ffi.Pointer<AuditService> auditService,
+    ffi.Pointer<ffi.Char> auditData,
+  ) {
+    return _VWriteAuditEvent(
+      auditService,
+      auditData,
+    );
+  }
+
+  late final _VWriteAuditEventPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<AuditService>,
+              ffi.Pointer<ffi.Char>)>>('VWriteAuditEvent');
+  late final _VWriteAuditEvent = _VWriteAuditEventPtr.asFunction<
+      int Function(ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>)>();
+
+  /// Construct query string
+  /// \param key - name of the Query, e.g. eventType
+  /// \param value - value of the Query, e.g. : encrypt
+  void VAddQueryParam(
+    ffi.Pointer<AuditService> auditService,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _VAddQueryParam(
+      auditService,
+      key,
+      value,
+    );
+  }
+
+  late final _VAddQueryParamPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VAddQueryParam');
+  late final _VAddQueryParam = _VAddQueryParamPtr.asFunction<
+      void Function(ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  /// Add additional header
+  /// \param key - name of the Header, e.g. Connection
+  /// \param value - value of the Header, e.g. keep-alive
+  void VAuditAddHeader(
+    ffi.Pointer<AuditService> auditService,
+    ffi.Pointer<ffi.Char> key,
+    ffi.Pointer<ffi.Char> value,
+  ) {
+    return _VAuditAddHeader(
+      auditService,
+      key,
+      value,
+    );
+  }
+
+  late final _VAuditAddHeaderPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VAuditAddHeader');
+  late final _VAuditAddHeader = _VAuditAddHeaderPtr.asFunction<
+      void Function(ffi.Pointer<AuditService>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>)>();
+
+  late final ffi.Pointer<ffi.Int> _virtru = _lookup<ffi.Int>('virtru');
+
+  int get virtru => _virtru.value;
+
+  set virtru(int value) => _virtru.value = value;
+
+  /// Destruct the Virtru client instance.
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \return completion status of the operation
+  int VClientOidcDestroy(
+    VClientOidcPtr vClientPtr,
+  ) {
+    return _VClientOidcDestroy(
+      vClientPtr,
+    );
+  }
+
+  late final _VClientOidcDestroyPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(VClientOidcPtr)>>(
+          'VClientOidcDestroy');
+  late final _VClientOidcDestroy =
+      _VClientOidcDestroyPtr.asFunction<int Function(VClientOidcPtr)>();
+
+  /// Add attributes that will applied for all TDFs creating by this instance
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \param attName - Attribute name
+  /// \param attValue - Attribute value
+  /// \return completion status of the operation
+  int VClientOIDCAddAttribute(
+    VClientOidcPtr vClientPtr,
+    ffi.Pointer<ffi.Char> attName,
+    ffi.Pointer<ffi.Char> attValue,
+  ) {
+    return _VClientOIDCAddAttribute(
+      vClientPtr,
+      attName,
+      attValue,
+    );
+  }
+
+  late final _VClientOIDCAddAttributePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(VClientOidcPtr, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('VClientOIDCAddAttribute');
+  late final _VClientOIDCAddAttribute = _VClientOIDCAddAttributePtr.asFunction<
+      int Function(
+          VClientOidcPtr, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+
+  /// Encrypt the file to tdf format.
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \param vStoragePtr - The storage handle for the TDF
+  /// \param outFilepath - path and filename where the tdf will be written
+  /// \return completion status of the operation
+  int VClientOidcEncryptFile(
+    VClientOidcPtr vClientPtr,
+    VTDFStorageTypePtr vStoragePtr,
+    ffi.Pointer<ffi.Char> outFilepath,
+  ) {
+    return _VClientOidcEncryptFile(
+      vClientPtr,
+      vStoragePtr,
+      outFilepath,
+    );
+  }
+
+  late final _VClientOidcEncryptFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(VClientOidcPtr, VTDFStorageTypePtr,
+              ffi.Pointer<ffi.Char>)>>('VClientOidcEncryptFile');
+  late final _VClientOidcEncryptFile = _VClientOidcEncryptFilePtr.asFunction<
+      int Function(
+          VClientOidcPtr, VTDFStorageTypePtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Decrypt the contents of the TDF file into its original content.
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \param vStoragePtr - The storage handle for the TDF
+  /// \param outFilepath - path and filename where the plaintext will be written
+  /// \return completion status of the operation
+  int VClientOidcDecryptFile(
+    VClientOidcPtr vClientPtr,
+    VTDFStorageTypePtr vStoragePtr,
+    ffi.Pointer<ffi.Char> outFilepath,
+  ) {
+    return _VClientOidcDecryptFile(
+      vClientPtr,
+      vStoragePtr,
+      outFilepath,
+    );
+  }
+
+  late final _VClientOidcDecryptFilePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(VClientOidcPtr, VTDFStorageTypePtr,
+              ffi.Pointer<ffi.Char>)>>('VClientOidcDecryptFile');
+  late final _VClientOidcDecryptFile = _VClientOidcDecryptFilePtr.asFunction<
+      int Function(
+          VClientOidcPtr, VTDFStorageTypePtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Encrypt the bytes to tdf format.
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \param vStoragePtr - The storage handle for the TDF
+  /// \param outBytesPtr - return value, pointer to buffer containing plaintext
+  /// \param outBytesLength - return value, pointer to length of plaintext
+  /// NOTE: The caller is responsible for freeing the malloc'ed storage pointed to by outBytesPtr
+  /// \return completion status of the operation
+  int VClientOidcEncryptData(
+    VClientOidcPtr vClientPtr,
+    VTDFStorageTypePtr vStoragePtr,
+    ffi.Pointer<VBytesPtr> outBytesPtr,
+    ffi.Pointer<VBytesLength> outBytesLength,
+  ) {
+    return _VClientOidcEncryptData(
+      vClientPtr,
+      vStoragePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _VClientOidcEncryptDataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              VClientOidcPtr,
+              VTDFStorageTypePtr,
+              ffi.Pointer<VBytesPtr>,
+              ffi.Pointer<VBytesLength>)>>('VClientOidcEncryptData');
+  late final _VClientOidcEncryptData = _VClientOidcEncryptDataPtr.asFunction<
+      int Function(VClientOidcPtr, VTDFStorageTypePtr, ffi.Pointer<VBytesPtr>,
+          ffi.Pointer<VBytesLength>)>();
+
+  /// Decrypt the TDF data into a buffer
+  /// \param vClientPtr - handle to ClientOidc object created with VClientOidcCreate
+  /// \param tdfStoragePtr - The storage handle for the TDF
+  /// \param outBytesPtr - return value, pointer to buffer containing plaintext
+  /// \param outBytesLength - return value, pointer to length of plaintext
+  /// NOTE: The caller is responsible for freeing the malloc'ed storage pointed to by outBytesPtr
+  /// \return completion status of the operation
+  int VClientOidcDecryptData(
+    VClientOidcPtr vClientPtr,
+    VTDFStorageTypePtr vStoragePtr,
+    ffi.Pointer<VBytesPtr> outBytesPtr,
+    ffi.Pointer<VBytesLength> outBytesLength,
+  ) {
+    return _VClientOidcDecryptData(
+      vClientPtr,
+      vStoragePtr,
+      outBytesPtr,
+      outBytesLength,
+    );
+  }
+
+  late final _VClientOidcDecryptDataPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              VClientOidcPtr,
+              VTDFStorageTypePtr,
+              ffi.Pointer<VBytesPtr>,
+              ffi.Pointer<VBytesLength>)>>('VClientOidcDecryptData');
+  late final _VClientOidcDecryptData = _VClientOidcDecryptDataPtr.asFunction<
+      int Function(VClientOidcPtr, VTDFStorageTypePtr, ffi.Pointer<VBytesPtr>,
+          ffi.Pointer<VBytesLength>)>();
 
   /// Create a new policy opaque object.
   /// \return VPolicyPtr opaque object.
@@ -1601,6 +2505,58 @@ class VirtruSdkFlutterBindings {
       int Function(VPolicyPtr, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
 }
 
+/// Status codes
+abstract class TDF_STATUS {
+  static const int TDF_STATUS_SUCCESS = 0;
+
+  /// Generic failure
+  static const int TDF_STATUS_FAILURE = 1;
+
+  /// Check the input parameters if they are valid.
+  static const int TDF_STATUS_INVALID_PARAMS = 2;
+
+  /// TODO these more detailed codes map roughly to the C++ exception codes in tdf_error_codes.h, there is probably
+  /// a cleaner way to keep them in sync
+  static const int TDF_STATUS_FAILURE_INTERNAL = 3;
+  static const int TDF_STATUS_FAILURE_NETWORK = 4;
+  static const int TDF_STATUS_FAILURE_CRYPTO = 5;
+  static const int TDF_STATUS_FAILURE_TDF_FORMAT = 6;
+  static const int TDF_STATUS_FAILURE_ATTR_OBJ = 7;
+  static const int TDF_STATUS_FAILURE_POLICY_OBJ = 8;
+  static const int TDF_STATUS_FAILURE_KAS_OBJ = 9;
+  static const int TDF_STATUS_FAILURE_NANOTDF_FORMAT = 10;
+}
+
+/// TDF Protocol
+abstract class TDFProtocol {
+  static const int TDFProtocolZip = 0;
+  static const int TDFProtocolHtml = 1;
+}
+
+/// Defines a log level.
+abstract class TDFLogLevel {
+  static const int TDFLogLevelTrace = 0;
+
+  /// Most detailed output
+  static const int TDFLogLevelDebug = 1;
+  static const int TDFLogLevelInfo = 2;
+  static const int TDFLogLevelWarn = 3;
+  static const int TDFLogLevelError = 4;
+  static const int TDFLogLevelFatal = 5;
+}
+
+/// TDF creds opaque object.
+typedef TDFCredsPtr = ffi.Pointer<ffi.Void>;
+
+/// TDF client opaque object.
+typedef TDFClientPtr = ffi.Pointer<ffi.Void>;
+
+/// TDF Storage type object.
+typedef TDFStorageTypePtr = ffi.Pointer<ffi.Void>;
+typedef TDFBytesPtr = ffi.Pointer<ffi.UnsignedChar>;
+typedef TDFBytesLength = ffi.UnsignedInt;
+typedef TDFCBytesPtr = ffi.Pointer<ffi.UnsignedChar>;
+
 /// Status code
 abstract class VSTATUS {
   static const int VSTATUS_SUCCESS = 0;
@@ -1644,3 +2600,13 @@ typedef VCBytesPtr = ffi.Pointer<ffi.UnsignedChar>;
 
 /// Policy opaque object.
 typedef VPolicyPtr = ffi.Pointer<ffi.Void>;
+
+final class ConfigService extends ffi.Opaque {}
+
+final class AuditService extends ffi.Opaque {}
+
+/// Virtru OIDC client opaque object
+typedef VClientOidcPtr = ffi.Pointer<ffi.Void>;
+
+/// Virtru storage type opaque object
+typedef VTDFStorageTypePtr = ffi.Pointer<ffi.Void>;
