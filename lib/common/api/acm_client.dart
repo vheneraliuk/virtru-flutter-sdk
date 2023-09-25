@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
+import 'package:virtru_sdk/client.dart';
 import 'package:virtru_sdk/common/api/auth_interceptor.dart';
 import 'package:virtru_sdk/common/api/entity/api_entities.dart';
 
@@ -8,12 +9,13 @@ part 'acm_client.g.dart';
 @RestApi(baseUrl: "https://api.virtru.com/acm")
 abstract class AcmClient {
   final String _owner;
+  final Environment _env;
 
-  AcmClient._(this._owner);
+  AcmClient._(this._owner, this._env);
 
-  factory AcmClient(String userId, String appId) {
+  factory AcmClient(String userId, String appId, Environment env) {
     final dio = Dio()..interceptors.addAll(_getInterceptors(userId, appId));
-    return _AcmClient._(dio, userId);
+    return _AcmClient._(dio, userId, env, baseUrl: env.acmEndpoint);
   }
 
   Future<CreateResult> createCollectionPolicy(
@@ -60,14 +62,14 @@ abstract class AcmClient {
       'uuid': policyId,
       'ek': ek,
     };
-
+    final sendEmailUrl = "${_env.easEndpoint}/api/send-transaction";
     for (final shareWithUser in sharedWithUsers) {
       final sharedWithEmailData = {
         'recipients': [shareWithUser],
         'templateId': 'SS_ON_FILE_SHARING_TO_RECIPIENT',
         'templateData': templateData,
       };
-      await sendEmail(sharedWithEmailData);
+      await sendEmail(sendEmailUrl, sharedWithEmailData);
     }
 
     final ownerEmailData = {
@@ -75,11 +77,12 @@ abstract class AcmClient {
       'templateId': 'SS_ON_FILE_SHARING_TO_FILE_OWNER',
       'templateData': templateData..addAll({'linkOwner': sharedWithUsers}),
     };
-    await sendEmail(ownerEmailData);
+    await sendEmail(sendEmailUrl, ownerEmailData);
   }
 
-  @POST('https://api.virtru.com/accounts/api/send-transaction')
+  @POST('{url}')
   Future<void> sendEmail(
+    @Path('url') String url,
     @Body() Map<String, dynamic> data, {
     @Header('Content-Type') String contentType = 'application/json',
     @Header('Origin') String origin = 'https://secure.virtru.com',

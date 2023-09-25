@@ -1169,6 +1169,50 @@ class VirtruSdkFlutterBindings {
   late final _VClientSetSecureReaderUrl = _VClientSetSecureReaderUrlPtr
       .asFunction<int Function(VClientPtr, ffi.Pointer<ffi.Char>)>();
 
+  /// Set the encrypted storage url that will be used for storing remote TDFs.
+  /// Optional - this method should be only used if you have your own secure storage server infrastructure.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param esUrl - The encrypted storage url
+  /// \return VSTATUS - VSTATUS_SUCCESS on success
+  int VClientSetEncryptedStorageURL(
+    VClientPtr vClientPtr,
+    ffi.Pointer<ffi.Char> esUrl,
+  ) {
+    return _VClientSetEncryptedStorageURL(
+      vClientPtr,
+      esUrl,
+    );
+  }
+
+  late final _VClientSetEncryptedStorageURLPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(VClientPtr,
+              ffi.Pointer<ffi.Char>)>>('VClientSetEncryptedStorageURL');
+  late final _VClientSetEncryptedStorageURL = _VClientSetEncryptedStorageURLPtr
+      .asFunction<int Function(VClientPtr, ffi.Pointer<ffi.Char>)>();
+
+  /// Set the rca service url that will be used for storing remote TDFs.
+  /// Optional - this method should be only used if you have your own rca service server infrastructure.
+  /// \param vClientPtr - The pointer to Virtru client opaque object.
+  /// \param rcaUrl -  The rca service url
+  /// \return VSTATUS - VSTATUS_SUCCESS on success
+  int VClientSetRCAServiceURL(
+    VClientPtr vClientPtr,
+    ffi.Pointer<ffi.Char> rcaUrl,
+  ) {
+    return _VClientSetRCAServiceURL(
+      vClientPtr,
+      rcaUrl,
+    );
+  }
+
+  late final _VClientSetRCAServiceURLPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              VClientPtr, ffi.Pointer<ffi.Char>)>>('VClientSetRCAServiceURL');
+  late final _VClientSetRCAServiceURL = _VClientSetRCAServiceURLPtr.asFunction<
+      int Function(VClientPtr, ffi.Pointer<ffi.Char>)>();
+
   /// Create a new encrypt file param opaque object.
   /// NOTE: The out file path will have .html/.tdf extension appended to
   /// inFilePath based on protocol.

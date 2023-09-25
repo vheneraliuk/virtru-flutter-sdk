@@ -35,6 +35,9 @@ abstract class Client {
         clientSecret: clientSecret,
       );
 
+  /// Set the environment for the client.
+  setEnvironment(Environment env);
+
   /// Enable the internal logger class to write logs to the console for given [LogLevel].
   int setConsoleLoggingLevel(LogLevel level);
 
@@ -142,6 +145,58 @@ enum LogLevel {
   final int logLevel;
 
   const LogLevel(this.logLevel);
+}
+
+enum Environment {
+  prod(
+      kasEndpoint: 'https://api.virtru.com/kas',
+      easEndpoint: 'https://api.virtru.com/accounts',
+      acmEndpoint: 'https://api.virtru.com/acm',
+      readerUrl: 'https://secure.virtru.com/start',
+      secureShareUrl: 'https://secure.virtru.com/secure-share',
+      rcaEndpoint: 'https://api.virtru.com/rca',
+      storageEndpoint: 'https://api.virtru.com/encrypted-storage',
+      fileStreamServiceWorker:
+          'https://secure.virtru.com/rca/stream-saver/index.html'),
+  staging(
+      kasEndpoint: 'https://api.staging.virtru.com/kas',
+      easEndpoint: 'https://api.staging.virtru.com/accounts',
+      acmEndpoint: 'https://api.staging.virtru.com/acm',
+      readerUrl: 'https://secure.staging.virtru.com/start',
+      secureShareUrl: 'https://secure.staging.virtru.com/secure-share',
+      rcaEndpoint: 'https://api.staging.virtru.com/rca',
+      storageEndpoint: 'https://api.staging.virtru.com/encrypted-storage',
+      fileStreamServiceWorker:
+          'https://secure.staging.virtru.com/rca/stream-saver/index.html'),
+  dev(
+      kasEndpoint: 'https://api.develop.virtru.com/kas',
+      easEndpoint: 'https://api.develop.virtru.com/accounts',
+      acmEndpoint: 'https://api.develop.virtru.com/acm',
+      readerUrl: 'https://secure.develop.virtru.com/start',
+      secureShareUrl: "https://secure.develop.virtru.com/secure-share",
+      rcaEndpoint: 'https://api.develop.virtru.com/rca',
+      storageEndpoint: 'https://api.develop.virtru.com/encrypted-storage',
+      fileStreamServiceWorker:
+          'https://secure.develop.virtru.com/rca/stream-saver/index.html');
+
+  const Environment(
+      {required this.kasEndpoint,
+      required this.easEndpoint,
+      required this.acmEndpoint,
+      required this.readerUrl,
+      required this.secureShareUrl,
+      required this.rcaEndpoint,
+      required this.storageEndpoint,
+      required this.fileStreamServiceWorker});
+
+  final String kasEndpoint;
+  final String easEndpoint;
+  final String acmEndpoint;
+  final String readerUrl;
+  final String secureShareUrl;
+  final String rcaEndpoint;
+  final String storageEndpoint;
+  final String fileStreamServiceWorker;
 }
 
 ///Result of encrypt operation

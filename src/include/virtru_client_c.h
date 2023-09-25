@@ -213,6 +213,21 @@ extern "C" {
 	/// \return VSTATUS - VSTATUS_SUCCESS on success
 	DLL_PUBLIC VSTATUS VClientSetSecureReaderUrl(VClientPtr vClientPtr, const char* srUrl);
 
+	/// Set the encrypted storage url that will be used for storing remote TDFs.
+	/// Optional - this method should be only used if you have your own secure storage server infrastructure.
+	/// \param vClientPtr - The pointer to Virtru client opaque object.
+	/// \param esUrl - The encrypted storage url
+	/// \return VSTATUS - VSTATUS_SUCCESS on success
+	DLL_PUBLIC VSTATUS VClientSetEncryptedStorageURL(VClientPtr vClientPtr, const char* esUrl);
+
+	/// Set the rca service url that will be used for storing remote TDFs.
+	/// Optional - this method should be only used if you have your own rca service server infrastructure.
+	/// \param vClientPtr - The pointer to Virtru client opaque object.
+	/// \param rcaUrl -  The rca service url
+	/// \return VSTATUS - VSTATUS_SUCCESS on success
+	DLL_PUBLIC VSTATUS VClientSetRCAServiceURL(VClientPtr vClientPtr, const char* rcaUrl);
+
+
 
 #ifdef __cplusplus
 }

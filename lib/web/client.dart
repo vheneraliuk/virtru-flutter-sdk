@@ -47,6 +47,12 @@ class ClientImpl implements Client {
   }
 
   @override
+  setEnvironment(Environment env) {
+    // TODO: implement setEnvironment
+    throw UnimplementedError();
+  }
+
+  @override
   int setConsoleLoggingLevel(LogLevel level) {
     // TODO: implement setConsoleLoggingLevel
     throw UnimplementedError();

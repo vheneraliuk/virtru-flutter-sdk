@@ -12,11 +12,21 @@ final appId1 = Platform.environment["TEST_APP_ID_1"]!;
 final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
 
+final userIdStag1 = Platform.environment["TEST_USER_ID_STAGING_1"]!;
+final appIdStag1 = Platform.environment["TEST_APP_ID_STAGING_1"]!;
+final userIdStag2 = Platform.environment["TEST_USER_ID_STAGING_2"]!;
+final appIdStag2 = Platform.environment["TEST_APP_ID_STAGING_2"]!;
+
+final userIdDev1 = Platform.environment["TEST_USER_ID_DEV_1"]!;
+final appIdDev1 = Platform.environment["TEST_APP_ID_DEV_1"]!;
+final userIdDev2 = Platform.environment["TEST_USER_ID_DEV_2"]!;
+final appIdDev2 = Platform.environment["TEST_APP_ID_DEV_2"]!;
+
 void main() {
   late Client client1;
   late Client client2;
 
-  initAppIdClients() {
+  initAppIdClients(userId1, appId1, userId2, appId2) {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
     client1.setConsoleLoggingLevel(LogLevel.error);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
@@ -26,6 +36,20 @@ void main() {
   disposeAppIdClients() {
     client1.dispose();
     client2.dispose();
+  }
+
+  stringToTdfToString() async {
+    const testData = "String -> TDF3 -> String";
+    final encryptedResult = await client2.encryptString(
+      EncryptStringParams(testData)
+        ..shareWithUsers([userId1])
+        ..setDisplayName("$testData.txt")
+        ..setMimeType(ContentType.text.mimeType)
+        ..setDisplayMessage(_displayMessage(testData)),
+    );
+    final tdf3String = encryptedResult.result;
+    final decryptedText = await client1.decryptString(tdf3String);
+    expect(decryptedText, equals(testData));
   }
 
   test("Wrong AppID and UserId", () async {
@@ -54,7 +78,7 @@ void main() {
   });
 
   group("Secure Share:", () {
-    setUp(initAppIdClients);
+    setUp(() => initAppIdClients(userId1, appId1, userId2, appId2));
     tearDown(disposeAppIdClients);
 
     test("Create Link", () async {
@@ -76,7 +100,7 @@ void main() {
   });
 
   group("Encrypt/Decrypt Strings:", () {
-    setUp(initAppIdClients);
+    setUp(() => initAppIdClients(userId1, appId1, userId2, appId2));
     tearDown(disposeAppIdClients);
 
     test("String -> RCA -> String", () async {
@@ -219,17 +243,7 @@ void main() {
     });
 
     test("String -> TDF3 -> String", () async {
-      const testData = "String -> TDF3 -> String";
-      final encryptedResult = await client2.encryptString(
-        EncryptStringParams(testData)
-          ..shareWithUsers([userId1])
-          ..setDisplayName("$testData.txt")
-          ..setMimeType(ContentType.text.mimeType)
-          ..setDisplayMessage(_displayMessage(testData)),
-      );
-      final tdf3String = encryptedResult.result;
-      final decryptedText = await client1.decryptString(tdf3String);
-      expect(decryptedText, equals(testData));
+      await stringToTdfToString();
     });
 
     test("TDF3 - Policy initial statuses", () async {
@@ -583,7 +597,7 @@ void main() {
   });
 
   group("Encrypt/Decrypt Files:", () {
-    setUp(initAppIdClients);
+    setUp(() => initAppIdClients(userId1, appId1, userId2, appId2));
     tearDown(disposeAppIdClients);
 
     test("File -> RCA -> File", () async {
@@ -856,6 +870,24 @@ void main() {
             ..setMimeType("image/png"));
       await expectLater(encryptFile, throwsA(isA<NativeError>()));
       await outputFile.deleteIfExists();
+    });
+  });
+
+  group("Environment:", () {
+    test("Staging", () async {
+      initAppIdClients(userIdStag1, appIdStag1, userIdStag2, appIdStag2);
+      client1.setEnvironment(Environment.staging);
+      client2.setEnvironment(Environment.staging);
+      await stringToTdfToString();
+      disposeAppIdClients();
+    });
+
+    test("Development", () async {
+      initAppIdClients(userIdDev1, appIdDev1, userIdDev2, appIdDev2);
+      client1.setEnvironment(Environment.dev);
+      client2.setEnvironment(Environment.dev);
+      await stringToTdfToString();
+      disposeAppIdClients();
     });
   });
 }

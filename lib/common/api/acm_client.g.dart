@@ -11,9 +11,10 @@ part of 'acm_client.dart';
 class _AcmClient extends AcmClient {
   _AcmClient._(
     this._dio,
-    String _owner, {
+    String _owner,
+    Environment _env, {
     this.baseUrl,
-  }) : super._(_owner) {
+  }) : super._(_owner, _env) {
     baseUrl ??= 'https://api.virtru.com/acm';
   }
 
@@ -23,6 +24,7 @@ class _AcmClient extends AcmClient {
 
   @override
   Future<void> sendEmail(
+    String url,
     Map<String, dynamic> data, {
     String contentType = 'application/json',
     String origin = 'https://secure.virtru.com',
@@ -46,7 +48,7 @@ class _AcmClient extends AcmClient {
     )
         .compose(
           _dio.options,
-          'https://api.virtru.com/accounts/api/send-transaction',
+          '${url}',
           queryParameters: queryParameters,
           data: _data,
         )

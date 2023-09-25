@@ -25,6 +25,7 @@ class ClientImpl implements Client {
   final VClientPtr _clientPtr;
   final String _owner;
   final String _appId;
+  Environment _env = Environment.prod;
 
   factory ClientImpl.withAppId({
     required String userId,
@@ -57,6 +58,20 @@ class ClientImpl implements Client {
       );
 
   ClientImpl._(this._clientPtr, this._owner, this._appId);
+
+  @override
+  setEnvironment(Environment env) {
+    bindings.VClientSetKasUrl(_clientPtr, env.kasEndpoint.toNativeString());
+    bindings.VClientSetEasUrl(_clientPtr, env.easEndpoint.toNativeString());
+    bindings.VClientSetAcmUrl(_clientPtr, env.acmEndpoint.toNativeString());
+    bindings.VClientSetSecureReaderUrl(
+        _clientPtr, env.readerUrl.toNativeString());
+    bindings.VClientSetEncryptedStorageURL(
+        _clientPtr, env.storageEndpoint.toNativeString());
+    bindings.VClientSetRCAServiceURL(
+        _clientPtr, env.rcaEndpoint.toNativeString());
+    _env = env;
+  }
 
   @override
   int setConsoleLoggingLevel(LogLevel level) {
@@ -200,7 +215,7 @@ class ClientImpl implements Client {
         'opening': openMessage,
       },
     };
-    final apiClient = AcmClient(_owner, _appId);
+    final apiClient = AcmClient(_owner, _appId, _env);
     final createResult = await apiClient.createCollectionPolicy(
       childrenPolicyIds,
       shareWith,
@@ -221,7 +236,7 @@ class ClientImpl implements Client {
       openMessage: openMessage,
     );
 
-    return 'https://secure.virtru.com/secure-share/shared/$_owner/${createResult.uuid}#ek=$urlEncodedMetadataKey';
+    return '${_env.secureShareUrl}/shared/$_owner/${createResult.uuid}#ek=$urlEncodedMetadataKey';
   }
 
   @override
