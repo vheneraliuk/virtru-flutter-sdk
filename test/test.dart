@@ -81,7 +81,36 @@ void main() {
     setUp(() => initAppIdClients(userId1, appId1, userId2, appId2));
     tearDown(disposeAppIdClients);
 
-    test("Create Link", () async {
+    test("Parse Link", () async {
+      const prodLink = "https://secure.virtru.com/secure-share/shared/vladyslav.heneraliuk@gmail.com/dee2714f-03ff-4d77-afb2-95165de3083b?utm_source=https%3A%2F%2Fsecure.virtru.com%2F&utm_medium=email&utm_campaign=outbound_view&utm_content=textlink#ek=W%2FJbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w%3D";
+      final secureShareProdLink = SecureShareLink.parse(prodLink);
+      expect(secureShareProdLink, isNotNull);
+      expect(secureShareProdLink!.policyUuid, "dee2714f-03ff-4d77-afb2-95165de3083b");
+      expect(secureShareProdLink.metadataKey, "W/JbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w=");
+      expect(secureShareProdLink.env, Environment.prod);
+    });
+
+    test("Decrypt Secure Share Link", () async {
+      const prodLink = "https://secure.virtru.com/secure-share/shared/vladyslav.heneraliuk@gmail.com/dee2714f-03ff-4d77-afb2-95165de3083b?utm_source=https%3A%2F%2Fsecure.virtru.com%2F&utm_medium=email&utm_campaign=outbound_view&utm_content=textlink#ek=W%2FJbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w%3D";
+      final result = await client1.decryptSecureShareLink(prodLink);
+      expect(result, isNotNull);
+      expect(result.files, hasLength(2));
+      expect(result.files[0].name, "flutter.png");
+      expect(result.files[1].name, "sensitive.txt");
+      expect(result.files[0].size, 828560);
+      expect(result.files[1].size, 4048);
+      expect(result.files[0].policyId, "ef14c297-9515-4519-9807-9545532f67df");
+      expect(result.files[1].policyId, "6b3bc005-5836-4a2f-abd8-3ba3ec518872");
+      expect(result.files[0].rcaLink, isNotEmpty);
+      expect(result.files[1].rcaLink, isNotEmpty);
+      expect(result.openMessage, "Open Message");
+      expect(result.encryptedMessage, "Secure Message");
+      expect(result.filesOwner, "qavirtru1@gmail.com");
+
+
+    });
+
+    test("Share files", () async {
       final file1 = XFile('test_data/flutter.png');
       final file2 = XFile('test_data/sensitive.txt');
       final result = await client1.secureShareData(
@@ -880,7 +909,7 @@ void main() {
       client2.setEnvironment(Environment.staging);
       await stringToTdfToString();
       disposeAppIdClients();
-    });
+    }, skip: "Skip staging tests");
 
     test("Development", () async {
       initAppIdClients(userIdDev1, appIdDev1, userIdDev2, appIdDev2);
@@ -888,7 +917,7 @@ void main() {
       client2.setEnvironment(Environment.dev);
       await stringToTdfToString();
       disposeAppIdClients();
-    });
+    }, skip: "Skip development tests");
   });
 }
 

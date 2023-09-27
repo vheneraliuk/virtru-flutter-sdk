@@ -6,6 +6,7 @@ import 'package:virtru_sdk/common/client.dart'
 import 'package:virtru_sdk/encrypt_params.dart';
 import 'package:virtru_sdk/entity/metadata.dart';
 import 'package:virtru_sdk/entity/native_error.dart';
+import 'package:virtru_sdk/entity/secure_share_result.dart';
 import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 
@@ -123,6 +124,9 @@ abstract class Client {
     String openMessage = '',
     String encryptedMessage = '',
   });
+
+  /// Decrypt given [secureShareUrl].
+  Future<SecureShareResult> decryptSecureShareLink(String secureShareUrl);
 
   /// Set the offline mode.
   /// If [enabled], all the TDFs will be encrypted in offline mode that means the symmetric key

@@ -2,6 +2,7 @@ import 'package:cross_file/cross_file.dart';
 import 'package:virtru_sdk/client.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
 import 'package:virtru_sdk/entity/metadata.dart';
+import 'package:virtru_sdk/entity/secure_share_result.dart';
 import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 
@@ -145,6 +146,12 @@ class ClientImpl implements Client {
     String encryptedMessage = '',
   }) {
     // TODO: implement secureShareData
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SecureShareResult> decryptSecureShareLink(String secureShareUrl) {
+    // TODO: implement decryptSecureShareLink
     throw UnimplementedError();
   }
 

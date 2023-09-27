@@ -103,6 +103,10 @@ abstract class AcmClient {
     @Header('Ignore-Auth') String ignoreAuth = 'true',
   });
 
+  @GET("/api/policies/{policyId}/data/metadata")
+  @DioResponseType(ResponseType.bytes)
+  Future<List<int>> getMetadata(@Path() String policyId);
+
   static List<Interceptor> _getInterceptors(String userId, String appId) {
     return <Interceptor>[AuthInterceptor(userId, appId)];
   }

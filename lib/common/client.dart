@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:cross_file/cross_file.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:cryptography_flutter/cryptography_flutter.dart';
 import 'package:easy_isolate/easy_isolate.dart';
 import 'package:ffi/ffi.dart';
@@ -14,6 +15,8 @@ import 'package:virtru_sdk/common/policy.dart';
 import 'package:virtru_sdk/encrypt_params.dart';
 import 'package:virtru_sdk/entity/metadata.dart';
 import 'package:virtru_sdk/entity/native_error.dart';
+import 'package:virtru_sdk/entity/secure_share_link.dart';
+import 'package:virtru_sdk/entity/secure_share_result.dart';
 import 'package:virtru_sdk/entity/security_settings.dart';
 import 'package:virtru_sdk/policy.dart';
 import 'package:virtru_sdk/virtru_sdk_bindings.dart';
@@ -236,7 +239,7 @@ class ClientImpl implements Client {
       openMessage: openMessage,
     );
 
-    return '${_env.secureShareUrl}/shared/$_owner/${createResult.uuid}#ek=$urlEncodedMetadataKey';
+    return SecureShareLink.create(_env, _owner, createResult.uuid, secretKey);
   }
 
   @override
@@ -281,6 +284,29 @@ class ClientImpl implements Client {
       openMessage: openMessage,
       encryptedMessage: encryptedMessage,
     );
+  }
+
+  @override
+  Future<SecureShareResult> decryptSecureShareLink(
+      String secureShareUrl) async {
+    final secureShareLink = SecureShareLink.parse(secureShareUrl);
+    if (secureShareLink == null) {
+      throw NativeError(1, "Secure Share URL parse error");
+    }
+    final apiClient = AcmClient(_owner, _appId, _env);
+    final metadataBinary =
+        await apiClient.getMetadata(secureShareLink.policyUuid);
+    final metadataDecoded = base64Decode(String.fromCharCodes(metadataBinary));
+    final cipher = FlutterAesGcm.with256bits();
+    final secretBoxForMetadata = SecretBox.fromConcatenation(metadataDecoded,
+        nonceLength: 12, macLength: 16);
+    final metadata = await cipher.decryptString(secretBoxForMetadata,
+        secretKey: SecretKey(base64Decode(secureShareLink.metadataKey)));
+    final secureShareResult = SecureShareResult.fromMetadata(metadata);
+    if (secureShareResult == null) {
+      throw NativeError(1, "Secure Share metadata parse error");
+    }
+    return secureShareResult;
   }
 
   @override
