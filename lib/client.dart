@@ -117,6 +117,7 @@ abstract class Client {
   /// The [securitySettings] is the optional security settings for the secure share.
   /// The [openMessage] is the optional open message to be sent to the share users.
   /// The [encryptedMessage] is the optional encrypted message to be sent to the share users.
+  /// Returns the secure share link.
   Future<String> secureShareData(
     List<XFile> files,
     List<String> shareWith, {

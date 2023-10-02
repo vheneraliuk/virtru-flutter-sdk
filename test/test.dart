@@ -12,25 +12,15 @@ final appId1 = Platform.environment["TEST_APP_ID_1"]!;
 final userId2 = Platform.environment["TEST_USER_ID_2"]!;
 final appId2 = Platform.environment["TEST_APP_ID_2"]!;
 
-final userIdStag1 = Platform.environment["TEST_USER_ID_STAGING_1"]!;
-final appIdStag1 = Platform.environment["TEST_APP_ID_STAGING_1"]!;
-final userIdStag2 = Platform.environment["TEST_USER_ID_STAGING_2"]!;
-final appIdStag2 = Platform.environment["TEST_APP_ID_STAGING_2"]!;
-
-final userIdDev1 = Platform.environment["TEST_USER_ID_DEV_1"]!;
-final appIdDev1 = Platform.environment["TEST_APP_ID_DEV_1"]!;
-final userIdDev2 = Platform.environment["TEST_USER_ID_DEV_2"]!;
-final appIdDev2 = Platform.environment["TEST_APP_ID_DEV_2"]!;
-
 void main() {
   late Client client1;
   late Client client2;
 
   initAppIdClients(userId1, appId1, userId2, appId2) {
     client1 = Client.withAppId(userId: userId1, appId: appId1);
-    client1.setConsoleLoggingLevel(LogLevel.error);
+    client1.setConsoleLoggingLevel(LogLevel.fatal);
     client2 = Client.withAppId(userId: userId2, appId: appId2);
-    client2.setConsoleLoggingLevel(LogLevel.error);
+    client2.setConsoleLoggingLevel(LogLevel.fatal);
   }
 
   disposeAppIdClients() {
@@ -82,38 +72,23 @@ void main() {
     tearDown(disposeAppIdClients);
 
     test("Parse Link", () async {
-      const prodLink = "https://secure.virtru.com/secure-share/shared/vladyslav.heneraliuk@gmail.com/dee2714f-03ff-4d77-afb2-95165de3083b?utm_source=https%3A%2F%2Fsecure.virtru.com%2F&utm_medium=email&utm_campaign=outbound_view&utm_content=textlink#ek=W%2FJbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w%3D";
+      const prodLink =
+          "https://secure.virtru.com/secure-share/shared/vladyslav.heneraliuk@gmail.com/dee2714f-03ff-4d77-afb2-95165de3083b?utm_source=https%3A%2F%2Fsecure.virtru.com%2F&utm_medium=email&utm_campaign=outbound_view&utm_content=textlink#ek=W%2FJbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w%3D";
       final secureShareProdLink = SecureShareLink.parse(prodLink);
       expect(secureShareProdLink, isNotNull);
-      expect(secureShareProdLink!.policyUuid, "dee2714f-03ff-4d77-afb2-95165de3083b");
-      expect(secureShareProdLink.metadataKey, "W/JbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w=");
+      expect(secureShareProdLink!.policyUuid,
+          "dee2714f-03ff-4d77-afb2-95165de3083b");
+      expect(secureShareProdLink.metadataKey,
+          "W/JbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w=");
       expect(secureShareProdLink.env, Environment.prod);
-    });
-
-    test("Decrypt Secure Share Link", () async {
-      const prodLink = "https://secure.virtru.com/secure-share/shared/vladyslav.heneraliuk@gmail.com/dee2714f-03ff-4d77-afb2-95165de3083b?utm_source=https%3A%2F%2Fsecure.virtru.com%2F&utm_medium=email&utm_campaign=outbound_view&utm_content=textlink#ek=W%2FJbOnyRE5CjANsRoGiRnWc5mTGpqQw50rcSqY4ZT8w%3D";
-      final result = await client1.decryptSecureShareLink(prodLink);
-      expect(result, isNotNull);
-      expect(result.files, hasLength(2));
-      expect(result.files[0].name, "flutter.png");
-      expect(result.files[1].name, "sensitive.txt");
-      expect(result.files[0].size, 828560);
-      expect(result.files[1].size, 4048);
-      expect(result.files[0].policyId, "ef14c297-9515-4519-9807-9545532f67df");
-      expect(result.files[1].policyId, "6b3bc005-5836-4a2f-abd8-3ba3ec518872");
-      expect(result.files[0].rcaLink, isNotEmpty);
-      expect(result.files[1].rcaLink, isNotEmpty);
-      expect(result.openMessage, "Open Message");
-      expect(result.encryptedMessage, "Secure Message");
-      expect(result.filesOwner, "qavirtru1@gmail.com");
-
-
     });
 
     test("Share files", () async {
       final file1 = XFile('test_data/flutter.png');
       final file2 = XFile('test_data/sensitive.txt');
-      final result = await client1.secureShareData(
+      const openMessageText = "Flutter SDK unit testing";
+      const encryptedMessageText = "Create Secure Share Link Test";
+      final secureShareLink = await client1.secureShareData(
         [file1, file2],
         [userId2],
         securitySettings: SecuritySettings(
@@ -121,10 +96,34 @@ void main() {
           isWatermarkEnabled: true,
           expirationDate: DateTime.now().add(const Duration(days: 10)),
         ),
-        openMessage: "Flutter SDK unit testing",
-        encryptedMessage: "Create Secure Share Link Test",
+        openMessage: openMessageText,
+        encryptedMessage: encryptedMessageText,
       );
-      expect(result, isNotEmpty);
+      expect(secureShareLink, isNotEmpty);
+      final secureShareResult =
+          await client2.decryptSecureShareLink(secureShareLink);
+      debugPrint("Unencrypted Message: '${secureShareResult.openMessage}'");
+      debugPrint("Encrypted Message: '${secureShareResult.encryptedMessage}'");
+      debugPrint("Files Owner: '${secureShareResult.filesOwner}'");
+      debugPrint("Files:");
+      for (var file in secureShareResult.files) {
+        debugPrint("\tFile PolicyId: '${file.policyId}'");
+        debugPrint("\tFile Name: '${file.name}'");
+        debugPrint("\tFile Size: ${file.size}");
+        debugPrint("\tFile RCA Link: ${file.rcaLink}");
+        debugPrint("\t====================");
+      }
+      expect(secureShareResult, isNotNull);
+      expect(secureShareResult.files, hasLength(2));
+      expect(secureShareResult.files[0].name, file1.name);
+      expect(secureShareResult.files[1].name, file2.name);
+      expect(secureShareResult.files[0].size, await file1.length());
+      expect(secureShareResult.files[1].size, await file2.length());
+      expect(secureShareResult.files[0].rcaLink, isNotEmpty);
+      expect(secureShareResult.files[1].rcaLink, isNotEmpty);
+      expect(secureShareResult.openMessage, openMessageText);
+      expect(secureShareResult.encryptedMessage, encryptedMessageText);
+      expect(secureShareResult.filesOwner, userId1);
     });
   });
 
@@ -900,24 +899,6 @@ void main() {
       await expectLater(encryptFile, throwsA(isA<NativeError>()));
       await outputFile.deleteIfExists();
     });
-  });
-
-  group("Environment:", () {
-    test("Staging", () async {
-      initAppIdClients(userIdStag1, appIdStag1, userIdStag2, appIdStag2);
-      client1.setEnvironment(Environment.staging);
-      client2.setEnvironment(Environment.staging);
-      await stringToTdfToString();
-      disposeAppIdClients();
-    }, skip: "Skip staging tests");
-
-    test("Development", () async {
-      initAppIdClients(userIdDev1, appIdDev1, userIdDev2, appIdDev2);
-      client1.setEnvironment(Environment.dev);
-      client2.setEnvironment(Environment.dev);
-      await stringToTdfToString();
-      disposeAppIdClients();
-    }, skip: "Skip development tests");
   });
 }
 
